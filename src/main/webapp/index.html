@@ -1,15 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progetto Spark Scacchi</title>
-    <link rel="stylesheet" href="./style.css">
-    <script type="module" src="./script.js"></script>
+    <title>Chess Analysis Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #6200ea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 10px 0;
+        }
+        ul li a {
+            text-decoration: none;
+            color: #6200ea;
+            font-weight: bold;
+        }
+        ul li a:hover {
+            text-decoration: underline;
+        }
+        #resultContainer {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8e8e8;
+            border-radius: 5px;
+            min-height: 200px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
 </head>
 <body>
-<h1>Benvenuto nel Progetto Spark Scacchi!</h1>
-<p>Questa è una modifica per testare il frontend.</p>
-<button id="testButton">Fai una richiesta</button>
+
+<header>
+    <h1>Benvenuto nel server di analisi scacchi!</h1>
+</header>
+
+<main>
+    <p>Usa uno dei seguenti endpoint per accedere ai dati:</p>
+    <ul>
+        <li><a href="#" onclick="loadData('/resultCounts')">Vittorie per colore</a></li>
+        <li><a href="#" onclick="loadData('/popularOpenings')">Aperture più popolari</a></li>
+        <li><a href="#" onclick="loadData('/avgRatingDiff')">Differenze medie di rating</a></li>
+    </ul>
+
+    <div id="resultContainer">
+        <!-- Qui verranno visualizzati i risultati -->
+    </div>
+</main>
+
+<script>
+    // Funzione per caricare i dati da un endpoint
+    function loadData(endpoint) {
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = "Caricamento in corso..."; // Mostra messaggio di caricamento
+
+        fetch(endpoint)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Errore nel recupero dei dati");
+                }
+                return response.text(); // Leggi il file come testo (CSV)
+            })
+            .then(data => {
+                console.log("Dati ricevuti:", data);
+                // Mostra i dati nella pagina
+                resultContainer.innerHTML = "<pre>" + data + "</pre>"; // Visualizza i dati come testo
+            })
+            .catch(error => {
+                console.error("Errore:", error);
+                resultContainer.innerHTML = "Errore nel recupero dei dati."; // Mostra un messaggio di errore
+            });
+    }
+</script>
+
 </body>
 </html>

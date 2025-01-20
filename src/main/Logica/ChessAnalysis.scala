@@ -1,11 +1,9 @@
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
-import utils.FileUtils
-
-import java.io.File;
-
+import java.io.File
 
 object ChessAnalysis {
+
   def main(args: Array[String]): Unit = {
     // Configura i log per ridurre i messaggi superflui
     configureLogging()
@@ -67,7 +65,6 @@ object ChessAnalysis {
     }
   }
 
-
   private def performAnalysis(chessData: Dataset[Row], outputDir: String): Unit = {
     import chessData.sparkSession.implicits._
 
@@ -75,25 +72,69 @@ object ChessAnalysis {
     val resultCounts = chessData.groupBy("Result").count()
     println("Conteggio delle vittorie per colore:")
     resultCounts.show()
-    FileUtils.saveAsSingleJson(resultCounts, s"$outputDir\\resultCounts", "resultCounts.json")
+
+    // Salvataggio in formato CSV in un solo file con nome specificato
+    val resultCountsDir = s"$outputDir/resultCounts"
+    resultCounts.coalesce(1)  // Assicura che venga scritto un solo file
+      .write
+      .mode("overwrite")
+      .option("header", "true")
+      .csv(resultCountsDir)
+
+    renameCSVFile(resultCountsDir, s"$outputDir/resultCounts.csv")
 
     // Aperture più popolari
     val popularOpenings = chessData.groupBy("Opening").count().orderBy($"count".desc)
     println("Aperture più popolari:")
     popularOpenings.show(10, truncate = false)
-    FileUtils.saveAsSingleJson(popularOpenings, s"$outputDir\\popularOpenings", "popularOpenings.json")
+
+    // Salvataggio in formato CSV in un solo file con nome specificato
+    val popularOpeningsDir = s"$outputDir/popularOpenings"
+    popularOpenings.coalesce(1)
+      .write
+      .mode("overwrite")
+      .option("header", "true")
+      .csv(popularOpeningsDir)
+
+    renameCSVFile(popularOpeningsDir, s"$outputDir/popularOpenings.csv")
 
     // Differenza media del rating
     val avgRatingDiff = chessData
       .selectExpr("avg(WhiteRatingDiff) as AvgWhiteRatingDiff", "avg(BlackRatingDiff) as AvgBlackRatingDiff")
     println("Differenza media del rating per colore:")
     avgRatingDiff.show()
-    FileUtils.saveAsSingleJson(avgRatingDiff, s"$outputDir\\avgRatingDiff", "avgRatingDiff.json")
 
-    println(s"Risultati salvati in: $outputDir")
+    // Salvataggio in formato CSV in un solo file con nome specificato
+    val avgRatingDiffDir = s"$outputDir/avgRatingDiff"
+    avgRatingDiff.coalesce(1)
+      .write
+      .mode("overwrite")
+      .option("header", "true")
+      .csv(avgRatingDiffDir)
+
+    renameCSVFile(avgRatingDiffDir, s"$outputDir/avgRatingDiff.csv")
+
+    println(s"Risultati salvati in CSV in: $outputDir")
+  }
+
+  // Funzione per rinominare il file CSV generato
+  private def renameCSVFile(sourceDir: String, targetFileName: String): Unit = {
+    val sourceDirFile = new File(sourceDir)
+    if (sourceDirFile.exists() && sourceDirFile.isDirectory) {
+      val partFile = sourceDirFile.listFiles().find(_.getName.startsWith("part-"))
+      partFile match {
+        case Some(file) =>
+          val renamedFile = new File(targetFileName)
+          if (file.renameTo(renamedFile)) {
+            println(s"File rinominato con successo in: $targetFileName")
+          } else {
+            println(s"Errore nel rinominare il file a: $targetFileName")
+          }
+        case None => println(s"Nessun file part trovato nella directory $sourceDir")
+      }
+    } else {
+      println(s"La directory $sourceDir non esiste.")
+    }
   }
 
 }
-
-
-
