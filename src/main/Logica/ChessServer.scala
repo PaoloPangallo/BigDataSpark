@@ -1,30 +1,48 @@
 package Logica
 
-import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.{Server, Handler}
 import org.eclipse.jetty.servlet.{ServletContextHandler, ServletHolder}
-import jakarta.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import scala.io.Source
+import org.eclipse.jetty.util.resource.Resource
+import org.eclipse.jetty.server.handler.ResourceHandler
+import org.eclipse.jetty.server.handler.HandlerCollection
+import org.eclipse.jetty.server.handler.ContextHandlerCollection
+import org.eclipse.jetty.server.handler.ContextHandler
+import jakarta.servlet.http.HttpServlet
 import java.io.File
 
 object ChessServer {
+
   private val OutputDirectory = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScacchi\\Output"
+  private val WebAppDirectory = "webapp" // Directory contenente i file statici
 
   def main(args: Array[String]): Unit = {
+
     // Configura il server Jetty
     val server = new Server(8080) // Porta 8080
-    val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
-    context.setContextPath("/") // Context root
-    server.setHandler(context)
 
-    // Aggiungi i servlet per servire i dati
-    context.addServlet(new ServletHolder(classOf[RootServlet]), "/") // Root
-    context.addServlet(new ServletHolder(classOf[ResultCountsServlet]), "/resultCounts") // Vittorie
-    context.addServlet(new ServletHolder(classOf[PopularOpeningsServlet]), "/popularOpenings") // Aperture
-    context.addServlet(new ServletHolder(classOf[AvgRatingDiffServlet]), "/avgRatingDiff") // Differenze rating
+    // Crea un gestore per i file statici (ad esempio, index.html, CSS, JS)
+    val staticHandler = new ResourceHandler()
+    staticHandler.setResourceBase(WebAppDirectory)
+    staticHandler.setDirectoriesListed(true) // Impostazione per l'accesso ai file nelle directory
+
+    // Crea il contesto per i servlet dinamici
+    val servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS)
+    servletContext.setContextPath("/") // Context root
+    servletContext.addServlet(new ServletHolder(new RootServlet()), "/") // Root servlet
+    servletContext.addServlet(new ServletHolder(new ResultCountsServlet()), "/resultCounts") // Endpoint ResultCounts
+    servletContext.addServlet(new ServletHolder(new PopularOpeningsServlet()), "/popularOpenings") // Endpoint PopularOpenings
+    servletContext.addServlet(new ServletHolder(new AvgRatingDiffServlet()), "/avgRatingDiff") // Endpoint AvgRatingDiff
+
+    // Combina il gestore statico con il contesto dei servlet dinamici
+    val handlerCollection = new HandlerCollection()
+    handlerCollection.setHandlers(Array(staticHandler, servletContext))
+
+    server.setHandler(handlerCollection)
 
     // Avvia il server
     server.start()
     println("Server avviato su http://localhost:8080")
+    println("File statici disponibili dal percorso: /")
     println("Endpoint disponibili:")
     println("1. Vittorie per colore: http://localhost:8080/resultCounts")
     println("2. Aperture popolari: http://localhost:8080/popularOpenings")
@@ -35,9 +53,9 @@ object ChessServer {
 
   // Servlet per la root
   class RootServlet extends HttpServlet {
-    override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+    override def doGet(req: jakarta.servlet.http.HttpServletRequest, resp: jakarta.servlet.http.HttpServletResponse): Unit = {
       resp.setContentType("text/html")
-      resp.setStatus(HttpServletResponse.SC_OK)
+      resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_OK)
       resp.getWriter.write(
         s"""
            |<html>
@@ -55,51 +73,48 @@ object ChessServer {
     }
   }
 
-  // Servlet per servire i conteggi delle vittorie
+  // Servlet per i conteggi delle vittorie
   class ResultCountsServlet extends HttpServlet {
-    override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+    override def doGet(req: jakarta.servlet.http.HttpServletRequest, resp: jakarta.servlet.http.HttpServletResponse): Unit = {
       val filePath = s"$OutputDirectory\\resultCounts\\resultCounts.json"
       serveJsonFile(filePath, resp)
     }
   }
 
+  // Servlet per le aperture più popolari
   class PopularOpeningsServlet extends HttpServlet {
-    override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+    override def doGet(req: jakarta.servlet.http.HttpServletRequest, resp: jakarta.servlet.http.HttpServletResponse): Unit = {
       val filePath = s"$OutputDirectory\\popularOpenings\\popularOpenings.json"
       serveJsonFile(filePath, resp)
     }
   }
 
+  // Servlet per la differenza media del rating
   class AvgRatingDiffServlet extends HttpServlet {
-    override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+    override def doGet(req: jakarta.servlet.http.HttpServletRequest, resp: jakarta.servlet.http.HttpServletResponse): Unit = {
       val filePath = s"$OutputDirectory\\avgRatingDiff\\avgRatingDiff.json"
       serveJsonFile(filePath, resp)
     }
   }
 
-
-  // Metodo ausiliario per leggere e servire un file JSON
-  private def serveJsonFile(filePath: String, resp: HttpServletResponse): Unit = {
+  // Metodo per leggere e servire un file JSON
+  private def serveJsonFile(filePath: String, resp: jakarta.servlet.http.HttpServletResponse): Unit = {
     val file = new File(filePath)
     if (!file.exists()) {
-      // Gestione dell'errore - File non trovato
-      println(s"Errore: File non trovato: $filePath")
-      resp.setStatus(HttpServletResponse.SC_NOT_FOUND)
+      resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND)
       resp.getWriter.write(s"""{"error": "File non trovato: $filePath"}""")
       return
     }
 
     try {
-      // Leggi il contenuto del file JSON
-      val data = Source.fromFile(file).getLines().mkString
+      val data = scala.io.Source.fromFile(file).getLines().mkString
       resp.setContentType("application/json")
-      resp.setStatus(HttpServletResponse.SC_OK)
+      resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_OK)
       resp.getWriter.write(data)
     } catch {
       case e: Exception =>
         e.printStackTrace()
-        println(s"Errore durante la lettura del file: $filePath")
-        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+        resp.setStatus(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         resp.getWriter.write(s"""{"error": "Errore durante la lettura del file: $filePath"}""")
     }
   }

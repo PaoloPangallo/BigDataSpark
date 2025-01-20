@@ -1,8 +1,9 @@
-import Logica.FileUtils
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import utils.FileUtils
 
-import java.io.File
+import java.io.File;
+
 
 object ChessAnalysis {
   def main(args: Array[String]): Unit = {
