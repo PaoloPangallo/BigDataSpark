@@ -7,6 +7,8 @@ import scala.io.Source
 import java.io.File
 
 object ChessServer {
+  private val OutputDirectory = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScacchi\\Output"
+
   def main(args: Array[String]): Unit = {
     // Configura il server Jetty
     val server = new Server(8080) // Porta 8080
@@ -37,51 +39,51 @@ object ChessServer {
       resp.setContentType("text/html")
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.getWriter.write(
-        """
-          |<html>
-          |<body>
-          |<h1>Benvenuto nel server di analisi scacchi</h1>
-          |<p>Usa uno dei seguenti endpoint per accedere ai dati:</p>
-          |<ul>
-          |  <li><a href="/resultCounts">Vittorie per colore</a></li>
-          |  <li><a href="/popularOpenings">Aperture più popolari</a></li>
-          |  <li><a href="/avgRatingDiff">Differenze medie di rating</a></li>
-          |</ul>
-          |</body>
-          |</html>
-        """.stripMargin)
+        s"""
+           |<html>
+           |<body>
+           |<h1>Benvenuto nel server di analisi scacchi</h1>
+           |<p>Usa uno dei seguenti endpoint per accedere ai dati:</p>
+           |<ul>
+           |  <li><a href="/resultCounts">Vittorie per colore</a></li>
+           |  <li><a href="/popularOpenings">Aperture più popolari</a></li>
+           |  <li><a href="/avgRatingDiff">Differenze medie di rating</a></li>
+           |</ul>
+           |</body>
+           |</html>
+         """.stripMargin)
     }
   }
 
   // Servlet per servire i conteggi delle vittorie
   class ResultCountsServlet extends HttpServlet {
     override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-      val filePath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\resultCounts.json"
+      val filePath = s"$OutputDirectory\\resultCounts\\resultCounts.json"
       serveJsonFile(filePath, resp)
     }
   }
 
-  // Servlet per servire le aperture più popolari
   class PopularOpeningsServlet extends HttpServlet {
     override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-      val filePath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\popularOpenings.json"
+      val filePath = s"$OutputDirectory\\popularOpenings\\popularOpenings.json"
       serveJsonFile(filePath, resp)
     }
   }
 
-  // Servlet per servire la differenza media del rating
   class AvgRatingDiffServlet extends HttpServlet {
     override def doGet(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-      val filePath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\avgRatingDiff.json"
+      val filePath = s"$OutputDirectory\\avgRatingDiff\\avgRatingDiff.json"
       serveJsonFile(filePath, resp)
     }
   }
+
 
   // Metodo ausiliario per leggere e servire un file JSON
   private def serveJsonFile(filePath: String, resp: HttpServletResponse): Unit = {
     val file = new File(filePath)
     if (!file.exists()) {
       // Gestione dell'errore - File non trovato
+      println(s"Errore: File non trovato: $filePath")
       resp.setStatus(HttpServletResponse.SC_NOT_FOUND)
       resp.getWriter.write(s"""{"error": "File non trovato: $filePath"}""")
       return
@@ -96,6 +98,7 @@ object ChessServer {
     } catch {
       case e: Exception =>
         e.printStackTrace()
+        println(s"Errore durante la lettura del file: $filePath")
         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         resp.getWriter.write(s"""{"error": "Errore durante la lettura del file: $filePath"}""")
     }
