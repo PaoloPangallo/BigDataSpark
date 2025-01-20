@@ -1,17 +1,31 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SparkSession, Dataset, Row}
 import java.io.File
+import org.apache.log4j.{Level, Logger}
 
 object ChessAnalysis {
   def main(args: Array[String]): Unit = {
-    // Inizializza una SparkSession con configurazione per disabilitare le librerie native di Hadoop
+    // Configura i log per ridurre i messaggi superflui
+    Logger.getLogger("org.apache").setLevel(Level.WARN)
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+
     val spark = SparkSession.builder()
-      .appName("Chess Dataset Test")
-      .master("local[*]") // Usa tutte le CPU disponibili in locale
-      .config("spark.hadoop.io.native.lib.available", "false") // Disabilita librerie native Hadoop
+      .appName("Test Spark")
+      .master("local[*]") // Usa tutte le CPU disponibili
+      .config("spark.ui.enabled", "false") // Disabilita l'interfaccia utente
       .getOrCreate()
+
+
+    import spark.implicits._
 
     // Percorso del file di input
     val filePath = "C:\\Users\\paolo\\Desktop\\Big Data\\chess_games.csv\\chess_games.csv"
+
+    // Controlla se il file esiste
+    val file = new File(filePath)
+    if (!file.exists()) {
+      println(s"Errore: Il file non esiste nel percorso: $filePath")
+      System.exit(1)
+    }
 
     // Leggi il dataset di scacchi
     val chessData = spark.read
@@ -19,25 +33,51 @@ object ChessAnalysis {
       .option("inferSchema", "true") // Inferisce automaticamente lo schema
       .csv(filePath)
 
-    // Mostra le prime righe del dataset per verificare il caricamento
+    // Mostra le prime righe e lo schema del dataset
     println("Prime righe del dataset:")
-    chessData.show(10)
-
-    // Mostra lo schema del dataset per verificare i tipi di dati
+    chessData.show(10, truncate = false) // Evita troncamenti per una migliore leggibilità
     println("Schema del dataset:")
     chessData.printSchema()
 
-
+    // Controllo colonne
+    println("Colonne trovate nel dataset:")
+    chessData.columns.foreach(println)
 
     // Crea la directory di output se non esiste
     val outputDir = new File("C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output")
-    if (!outputDir.exists()) outputDir.mkdirs()
+    if (!outputDir.exists() && outputDir.mkdirs()) {
+      println(s"Creata la directory di output: ${outputDir.getAbsolutePath}")
+    }
 
-    // Percorso del file di output
-    val outputPath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\winCounts.json"
+    // Percorsi dei file di output
+    val resultCountsPath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\resultCounts.json"
+    val popularOpeningsPath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\popularOpenings.json"
+    val avgRatingDiffPath = "C:\\Users\\paolo\\Desktop\\ProgettoSparkScalaScacchi\\Output\\avgRatingDiff.json"
 
-    // Salva i risultati in JSON
+    // **1. Conteggio delle vittorie per colore**
+    val resultCounts = chessData.groupBy("Result").count()
+    println("Conteggio delle vittorie per colore:")
+    resultCounts.show()
+    resultCounts.write.mode("overwrite").json(resultCountsPath)
 
+    // **2. Aperture più popolari**
+    val popularOpenings = chessData.groupBy("Opening").count().orderBy($"count".desc)
+    println("Aperture più popolari:")
+    popularOpenings.show(10, truncate = false) // Mostra i primi 10 senza troncare
+    popularOpenings.write.mode("overwrite").json(popularOpeningsPath)
+
+    // **3. Differenza media del rating**
+    val avgRatingDiff = chessData
+      .selectExpr("avg(WhiteRatingDiff) as AvgWhiteRatingDiff", "avg(BlackRatingDiff) as AvgBlackRatingDiff")
+    println("Differenza media del rating per colore:")
+    avgRatingDiff.show()
+    avgRatingDiff.write.mode("overwrite").json(avgRatingDiffPath)
+
+    // Messaggio di completamento
+    println(s"I risultati sono stati salvati nei seguenti file JSON:")
+    println(s"- Vittorie per colore: $resultCountsPath")
+    println(s"- Aperture popolari: $popularOpeningsPath")
+    println(s"- Differenze medie di rating: $avgRatingDiffPath")
 
     // Arresta la SparkSession
     spark.stop()
