@@ -1,54 +1,45 @@
 package Servlets;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
+import Services.DataService;
+import Utils.ServletUtils;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PopularOpeningsServlet extends HttpServlet {
-
-    private String outputDirectory;
+    private static final Logger LOGGER = Logger.getLogger(PopularOpeningsServlet.class.getName());
+    private DataService dataService;
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        // Recupera il parametro di inizializzazione dal web.xml
-        this.outputDirectory = config.getInitParameter("outputDirectory");
-
-        if (this.outputDirectory == null || this.outputDirectory.isEmpty()) {
-            throw new ServletException("outputDirectory non configurato o vuoto!");
+    public void init() {
+        try {
+            String outputDirectory = getServletContext().getInitParameter("outputDirectory");
+            if (outputDirectory == null || outputDirectory.isEmpty()) {
+                throw new IllegalStateException("Parametro 'outputDirectory' non configurato o nullo.");
+            }
+            dataService = new DataService(outputDirectory);
+            LOGGER.info("PopularOpeningsServlet inizializzato con directory: " + outputDirectory);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Errore durante l'inizializzazione del servlet: " + e.getMessage(), e);
+            throw new RuntimeException("Errore nell'inizializzazione del servlet PopularOpeningsServlet.", e);
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Costruisce il percorso del file usando outputDirectory
-        String filePath = outputDirectory + File.separator + "popularOpenings.csv";
-        File file = new File(filePath);
-
-        // Se il file non esiste, restituisce un errore 404
-        if (!file.exists()) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write("File non trovato");
-            return;
-        }
-
-        // Imposta il tipo di contenuto come CSV
-        resp.setContentType("text/csv");
-        resp.setStatus(HttpServletResponse.SC_OK);
-
-        // Legge il contenuto del file CSV e lo invia nella risposta
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                resp.getWriter().write(line + "\n");
-            }
+        LOGGER.info("Ricevuta richiesta GET per PopularOpeningsServlet.");
+        try {
+            String content = dataService.getFileContent("popularOpenings.csv");
+            ServletUtils.sendResponse(resp, content, "text/csv");
+            LOGGER.info("Risposta inviata con successo per PopularOpeningsServlet.");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Errore nel recupero del file popularOpenings.csv: " + e.getMessage(), e);
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File non trovato: popularOpenings.csv");
         }
     }
 }
