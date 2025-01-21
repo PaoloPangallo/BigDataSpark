@@ -11,7 +11,7 @@
         <servlet-class>Servlets.ResultCountsServlet</servlet-class>
         <init-param>
             <param-name>outputDirectory</param-name>
-            <param-value>C:/path/to/output</param-value>
+            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
@@ -25,7 +25,7 @@
         <servlet-class>Servlets.AvgRatingDiffServlet</servlet-class>
         <init-param>
             <param-name>outputDirectory</param-name>
-            <param-value>C:/path/to/output</param-value>
+            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
@@ -39,7 +39,7 @@
         <servlet-class>Servlets.PopularOpeningsServlet</servlet-class>
         <init-param>
             <param-name>outputDirectory</param-name>
-            <param-value>C:/path/to/output</param-value>
+            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
@@ -51,6 +51,10 @@
     <servlet>
         <servlet-name>RootServlet</servlet-name>
         <servlet-class>Servlets.RootServlet</servlet-class>
+        <init-param>
+            <param-name>webAppDirectory</param-name>
+            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/src/main/webapp</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>RootServlet</servlet-name>
