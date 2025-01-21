@@ -7,25 +7,22 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
 <header>
     <h1>Benvenuto nel server di analisi scacchi!</h1>
 </header>
-
 <main>
-    <p>Usa uno dei seguenti endpoint per accedere ai dati:</p>
-    <ul>
-        <li><a href="#" onclick="loadData('/resultCounts')">Vittorie per colore</a></li>
-        <li><a href="#" onclick="loadData('/popularOpenings')">Aperture più popolari</a></li>
-        <li><a href="#" onclick="loadData('/avgRatingDiff')">Differenze medie di rating</a></li>
-    </ul>
-
-    <div id="resultContainer">
-        <!-- Qui verranno visualizzati i risultati -->
+    <h2>Esplora i dati:</h2>
+    <div class="endpoint-links">
+        <button onclick="loadData('/resultCounts')">Vittorie per colore</button>
+        <button onclick="loadData('/popularOpenings')">Aperture più popolari</button>
+        <button onclick="loadData('/avgRatingDiff')">Differenze medie di rating</button>
     </div>
+    <div id="loader" class="hidden"></div>
+    <div id="resultContainer">I risultati saranno visualizzati qui...</div>
 </main>
-
+<footer>
+    Chess Analysis Server © 2025
+</footer>
 <script src="js/script.js"></script>
-
 </body>
 </html>

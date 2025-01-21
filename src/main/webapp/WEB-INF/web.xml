@@ -5,14 +5,16 @@
              http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
+    <!-- Parametro di contesto comune per la directory di output -->
+    <context-param>
+        <param-name>outputDirectory</param-name>
+        <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
+    </context-param>
+
     <!-- Configurazione servlet per ResultCounts -->
     <servlet>
         <servlet-name>ResultCountsServlet</servlet-name>
         <servlet-class>Servlets.ResultCountsServlet</servlet-class>
-        <init-param>
-            <param-name>outputDirectory</param-name>
-            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>ResultCountsServlet</servlet-name>
@@ -23,10 +25,6 @@
     <servlet>
         <servlet-name>AvgRatingDiffServlet</servlet-name>
         <servlet-class>Servlets.AvgRatingDiffServlet</servlet-class>
-        <init-param>
-            <param-name>outputDirectory</param-name>
-            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>AvgRatingDiffServlet</servlet-name>
@@ -37,10 +35,6 @@
     <servlet>
         <servlet-name>PopularOpeningsServlet</servlet-name>
         <servlet-class>Servlets.PopularOpeningsServlet</servlet-class>
-        <init-param>
-            <param-name>outputDirectory</param-name>
-            <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>PopularOpeningsServlet</servlet-name>
