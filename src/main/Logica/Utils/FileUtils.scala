@@ -1,20 +1,52 @@
-import java.io.File
+package Utils
+
+import org.apache.spark.sql.{Dataset, Row}
+import java.io.{File, IOException}
 
 object FileUtils {
 
-  // Funzione per rinominare il file part-00000 in un nome leggibile
-  def renameGeneratedFile(tempDir: String, finalFileName: String): String = {
-    val tempFile = new File(s"$tempDir/part-00000")  // Percorso del file part-00000
-    if (tempFile.exists()) {
-      val finalFile = new File(s"$tempDir/$finalFileName") // Nuovo nome file
-      if (tempFile.renameTo(finalFile)) {
-        println(s"File rinominato in: ${finalFile.getAbsolutePath}")
-        return finalFile.getAbsolutePath
-      } else {
-        throw new IllegalStateException(s"Impossibile rinominare il file: ${tempFile.getAbsolutePath}")
+  def saveAndRename(data: Dataset[Row], outputDir: String, targetFileName: String): Unit = {
+    try {
+      println(s"Scrittura dei dati in: $outputDir")
+      data.coalesce(1)
+        .write
+        .mode("overwrite")
+        .option("header", "true")
+        .csv(outputDir)
+
+      renameCSVFile(outputDir, targetFileName)
+    } catch {
+      case e: IOException =>
+        println(s"Errore durante la scrittura in $outputDir: ${e.getMessage}")
+        throw e
+    }
+  }
+
+  def renameCSVFile(sourceDir: String, targetFileName: String): Unit = {
+    val sourceDirFile = new File(sourceDir)
+    if (sourceDirFile.exists() && sourceDirFile.isDirectory) {
+      val partFile = sourceDirFile.listFiles().find(_.getName.startsWith("part-"))
+      partFile match {
+        case Some(file) =>
+          val renamedFile = new File(targetFileName)
+          if (renamedFile.exists() && !renamedFile.delete()) {
+            throw new IOException(s"Impossibile eliminare il file esistente: $targetFileName")
+          }
+          if (!file.renameTo(renamedFile)) {
+            throw new IOException(s"Errore nel rinominare il file: ${file.getName} -> $targetFileName")
+          }
+        case None =>
+          println(s"Nessun file part trovato nella directory $sourceDir")
       }
     } else {
-      throw new IllegalStateException(s"Il file ${tempFile.getAbsolutePath} non esiste.")
+      println(s"La directory $sourceDir non esiste o non è una directory.")
     }
+  }
+
+  def deleteDirectory(directory: File): Boolean = {
+    if (directory.isDirectory) {
+      directory.listFiles().foreach(deleteDirectory)
+    }
+    directory.delete()
   }
 }

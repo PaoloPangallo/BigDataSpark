@@ -13,9 +13,9 @@ import java.util.logging.Logger;
 public class ChessServer {
 
     private static final Logger LOGGER = Logger.getLogger(ChessServer.class.getName());
-    private static final String OUTPUT_DIRECTORY = "C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output";
+    private static final String OUTPUT_DIRECTORY = "C:/Users/paolo/Desktop/ProgettoSparkScacchi";
     private static final String WEB_APP_DIRECTORY = "src/main/webapp"; // Percorso dei file statici
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 8082;
 
     public static void main(String[] args) {
         try {

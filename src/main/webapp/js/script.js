@@ -61,3 +61,22 @@ function loadData(endpoint) {
             resultContainer.innerHTML = "Errore nel recupero dei dati.";
         });
 }
+const ctx = document.getElementById('chart').getContext('2d');
+new Chart(ctx, {
+    type: 'pie', // Puoi usare 'bar', 'line', 'doughnut', ecc.
+    data: {
+        labels: ['1-0', '0-1', 'Draw'],
+        datasets: [{
+            data: [3113572, 2902394, 238875], // I tuoi dati
+            backgroundColor: ['#6c5ce7', '#74b9ff', '#fd79a8'],
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+        }
+    }
+});
