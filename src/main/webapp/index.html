@@ -14,13 +14,12 @@
 <main>
     <h2>Esplora i dati:</h2>
     <div class="endpoint-links">
-        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie 2 per colore</button>
+        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie  per colore</button>
         <button onclick="loadData('query?filename=popularOpenings.csv')">Aperture più popolari</button>
         <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
-        <button onclick="loadStatistics()">Visualizza Statistiche</button>
+        <button onclick="loadStatistics()">Visualizza Statistiche Generali</button>
+        <button onclick="loadMVPStatistics()">Visualizza Statistiche MVP</button> <!-- Pulsante per MVP -->
     </div>
-
-
 
     <!-- Loader con animazione -->
     <div id="loader" class="hidden">Caricamento...</div>
@@ -40,6 +39,31 @@
         <h3>Percentuali</h3>
         <div id="chartContainer2" class="chart-container">
             <canvas id="chart2" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Contenitore per le statistiche MVP -->
+    <div id="mvpContainer" class="hidden">
+        <h2>Statistiche MVP</h2>
+
+        <!-- Giocatori più vincenti (assoluto) -->
+        <div id="mvpTopPlayersAbsolute" class="mvp-section">
+            <h3>Giocatori più vincenti (assoluto)</h3>
+        </div>
+
+        <!-- Giocatori con maggior percentuale di vittorie -->
+        <div id="mvpTopPlayersPercentage" class="mvp-section">
+            <h3>Giocatori con maggior percentuale di vittorie</h3>
+        </div>
+
+        <!-- Aperture più vincenti -->
+        <div id="mvpTopWinningOpenings" class="mvp-section">
+            <h3>Aperture più vincenti</h3>
+        </div>
+
+        <!-- Tornei più giocati -->
+        <div id="mvpTopTournaments" class="mvp-section">
+            <h3>Tornei più giocati</h3>
         </div>
     </div>
 </main>

@@ -1,5 +1,4 @@
 import Servlets.QueryServlet;
-
 import Servlets.RootServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -33,11 +32,11 @@ public class ChessServer {
             servletContext.setInitParameter("outputDirectory", OUTPUT_DIRECTORY);
 
             // Aggiungi servlet
+            servletContext.addServlet(QueryServlet.class, "/query"); // Servlet principale per query
+            servletContext.addServlet(QueryServlet.class, "/getStatistics"); // Endpoint per statistiche generali
+            servletContext.addServlet(QueryServlet.class, "/getMVPStatistics"); // Endpoint per statistiche MVP
 
-            servletContext.addServlet(QueryServlet.class, "/query");
-            servletContext.addServlet(QueryServlet.class, "/getStatistics");
-
-            servletContext.addServlet(RootServlet.class, "/");
+            servletContext.addServlet(RootServlet.class, "/"); // Root servlet
 
             // Combina gestori statici e servlet
             HandlerCollection handlerCollection = new HandlerCollection();

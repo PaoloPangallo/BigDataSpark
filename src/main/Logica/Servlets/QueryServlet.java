@@ -34,30 +34,12 @@ public class QueryServlet extends HttpServlet {
 
         try {
             if ("statistics".equals(type)) {
-                // Gestione della richiesta per le statistiche
-                LOGGER.info("Richiesta per il file delle statistiche.");
-                if (!dataService.fileExists("chessStatistics.csv")) {
-                    ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File delle statistiche non trovato.");
-                    return;
-                }
-
-                String content = dataService.getFileContent("chessStatistics.csv"); // File fisso per le statistiche
-                String json = ServletUtils.csvToJson(content); // Converte il CSV in JSON
-                ServletUtils.sendResponse(resp, json, "application/json");
-
+                handleStatisticsRequest(resp);
+            } else if ("mvp".equals(type)) {
+                handleMVPRequest(resp);
             } else if (filename != null && !filename.trim().isEmpty()) {
-                // Gestione della richiesta per file specifici
-                LOGGER.info("Richiesta per il file: " + filename);
-                if (!dataService.fileExists(filename)) {
-                    ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File non trovato: " + filename);
-                    return;
-                }
-
-                String content = dataService.getFileContent(filename);
-                ServletUtils.sendResponse(resp, content, "text/csv");
-
+                handleFileRequest(filename, resp);
             } else {
-                // Parametri mancanti o non validi
                 LOGGER.warning("Parametro 'filename' o 'type' richiesto ma non fornito.");
                 ServletUtils.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parametro 'filename' o 'type' richiesto.");
             }
@@ -65,5 +47,54 @@ public class QueryServlet extends HttpServlet {
             LOGGER.log(Level.SEVERE, "Errore nel recupero del file: " + e.getMessage(), e);
             ServletUtils.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante l'elaborazione della richiesta.");
         }
+    }
+
+    private void handleStatisticsRequest(HttpServletResponse resp) throws IOException {
+        LOGGER.info("Richiesta per il file delle statistiche generali.");
+        if (!dataService.fileExists("chessStatistics.csv")) {
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File delle statistiche non trovato.");
+            return;
+        }
+
+        String content = dataService.getFileContent("chessStatistics.csv");
+        String json = ServletUtils.csvToJson(content);
+        ServletUtils.sendResponse(resp, json, "application/json");
+    }
+
+    private void handleMVPRequest(HttpServletResponse resp) throws IOException {
+        LOGGER.info("Richiesta per il file delle statistiche MVP.");
+        if (!dataService.fileExists("topPlayersAbsolute.csv") ||
+                !dataService.fileExists("topPlayersPercentage.csv") ||
+                !dataService.fileExists("topWinningOpenings.csv") ||
+                !dataService.fileExists("topTournaments.csv")) {
+
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file delle statistiche MVP non trovato.");
+            return;
+        }
+
+        String playersAbsolute = dataService.getFileContent("topPlayersAbsolute.csv");
+        String playersPercentage = dataService.getFileContent("topPlayersPercentage.csv");
+        String openings = dataService.getFileContent("topWinningOpenings.csv");
+        String tournaments = dataService.getFileContent("topTournaments.csv");
+
+        String jsonResponse = "{"
+                + "\"topPlayersAbsolute\": " + ServletUtils.csvToJson(playersAbsolute) + ","
+                + "\"topPlayersPercentage\": " + ServletUtils.csvToJson(playersPercentage) + ","
+                + "\"topWinningOpenings\": " + ServletUtils.csvToJson(openings) + ","
+                + "\"topTournaments\": " + ServletUtils.csvToJson(tournaments)
+                + "}";
+
+        ServletUtils.sendResponse(resp, jsonResponse, "application/json");
+    }
+
+    private void handleFileRequest(String filename, HttpServletResponse resp) throws IOException {
+        LOGGER.info("Richiesta per il file: " + filename);
+        if (!dataService.fileExists(filename)) {
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File non trovato: " + filename);
+            return;
+        }
+
+        String content = dataService.getFileContent(filename);
+        ServletUtils.sendResponse(resp, content, "text/csv");
     }
 }

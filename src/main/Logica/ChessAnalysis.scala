@@ -1,7 +1,7 @@
-import Services.{DataLoader, OpeningAnalyzer, RatingAnalyzer, ResultAnalyzer, StatisticsGenerator}
+import Services._
 import Utils.FileUtils
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import org.apache.spark.sql.SparkSession
 
 import java.io.{File, IOException}
 
@@ -20,7 +20,6 @@ object ChessAnalysis {
 
       chessData.printSchema()
 
-
       val resultAnalyzer = new ResultAnalyzer()
       resultAnalyzer.analyze(chessData, outputDir)
 
@@ -33,6 +32,8 @@ object ChessAnalysis {
       val statisticsGenerator = new StatisticsGenerator()
       statisticsGenerator.generate(chessData, outputDir)
 
+      val mvpStatistics = new MVPStatistics()
+      mvpStatistics.analyze(chessData, outputDir)
 
       println(s"Risultati salvati in CSV nella directory: $outputDir")
     } finally {
