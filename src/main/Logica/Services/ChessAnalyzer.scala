@@ -1,6 +1,7 @@
 package Services
 
 import Utils.FileUtils
+import org.apache.spark.sql.functions.regexp_replace
 import org.apache.spark.sql.{Dataset, Row}
 
 class ResultAnalyzer {
@@ -14,14 +15,23 @@ class OpeningAnalyzer {
   def analyze(chessData: Dataset[Row], outputDir: String): Unit = {
     import chessData.sparkSession.implicits._
 
+    // Pulizia della colonna Opening
+    val cleanedChessData = chessData.withColumn(
+      "Opening",
+      regexp_replace($"Opening", "\"", "") // Rimuove le virgolette dalla colonna Opening
+    )
+
     // Conteggio delle aperture
-    val popularOpenings = chessData
+    val popularOpenings = cleanedChessData
       .groupBy("Opening")
       .count()
-      .withColumnRenamed("count", "OpeningCount") // Rinomina la colonna count in OpeningCount
+      .withColumnRenamed("count", "OpeningCount")
 
     // Ordina per la colonna OpeningCount in ordine decrescente
     val sortedOpenings = popularOpenings.orderBy($"OpeningCount".desc)
+
+    // Debug: controlla i dati prima di salvare
+    sortedOpenings.show(60, false)
 
     // Salva i risultati
     FileUtils.saveAndRename(sortedOpenings, outputDir, "popularOpenings.csv")

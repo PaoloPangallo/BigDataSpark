@@ -19,15 +19,28 @@
         <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
         <button onclick="loadStatistics()">Visualizza Statistiche</button>
     </div>
-    <div id="loader" class="hidden">Caricamento...</div>
-    <div id="resultContainer">I risultati saranno visualizzati qui...</div>
 
-    <!-- Contenitori per i grafici -->
-    <div id="chartContainer1" style="margin-top: 20px;">
-        <canvas id="chart1" width="400" height="200"></canvas>
+
+
+    <!-- Loader con animazione -->
+    <div id="loader" class="hidden">Caricamento...</div>
+
+    <!-- Contenitore per i risultati della tabella -->
+    <div id="resultContainer"></div>
+
+    <!-- Sezione per i grafici con titoli -->
+    <div class="chart-section hidden" id="chartSection1">
+        <h3>Valori Assoluti</h3>
+        <div id="chartContainer1" class="chart-container">
+            <canvas id="chart1" width="400" height="200"></canvas>
+        </div>
     </div>
-    <div id="chartContainer2" style="margin-top: 20px;">
-        <canvas id="chart2" width="400" height="200"></canvas>
+
+    <div class="chart-section hidden" id="chartSection2">
+        <h3>Percentuali</h3>
+        <div id="chartContainer2" class="chart-container">
+            <canvas id="chart2" width="400" height="200"></canvas>
+        </div>
     </div>
 </main>
 <footer>

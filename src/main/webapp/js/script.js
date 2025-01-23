@@ -32,11 +32,36 @@ function createTableFromCSV(csvData) {
 let chart1; // Variabile per il grafico 1
 let chart2; // Variabile per il grafico 2
 
+// Funzione per nascondere le statistiche (grafici e tabella)
+function hideStatistics() {
+    document.getElementById('resultContainer').innerHTML = ''; // Svuota la tabella
+    document.getElementById('chartContainer1').classList.add('hidden'); // Nasconde il grafico 1
+    document.getElementById('chartContainer2').classList.add('hidden'); // Nasconde il grafico 2
+
+    // Distruggi i grafici esistenti
+    if (chart1) {
+        chart1.destroy();
+        chart1 = null;
+    }
+    if (chart2) {
+        chart2.destroy();
+        chart2 = null;
+    }
+}
+
+// Funzione per caricare le statistiche
 function loadStatistics() {
+    // Nasconde eventuali dati generici
+    hideStatistics();
+
     const loader = document.getElementById('loader');
     const resultContainer = document.getElementById('resultContainer');
-    const chartContainer1 = document.getElementById('chart1').getContext('2d');
-    const chartContainer2 = document.getElementById('chart2').getContext('2d');
+    const chartContainer1 = document.getElementById('chartContainer1');
+    const chartContainer2 = document.getElementById('chartContainer2');
+
+    // Mostra i contenitori per i grafici
+    chartContainer1.classList.remove('hidden');
+    chartContainer2.classList.remove('hidden');
 
     loader.classList.remove('hidden');
     resultContainer.innerHTML = '';
@@ -85,7 +110,7 @@ function loadStatistics() {
             }
 
             // Grafico per valori assoluti
-            chart1 = new Chart(chartContainer1, {
+            chart1 = new Chart(document.getElementById('chart1').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: absoluteStats.map(row => row.Statistic),
@@ -103,7 +128,7 @@ function loadStatistics() {
             });
 
             // Grafico per percentuali
-            chart2 = new Chart(chartContainer2, {
+            chart2 = new Chart(document.getElementById('chart2').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: percentageStats.map(row => row.Statistic),
@@ -127,8 +152,11 @@ function loadStatistics() {
         });
 }
 
-// Funzione per caricare i dati generici (CSV)
+// Funzione per caricare dati generici (CSV)
 function loadData(endpoint) {
+    // Nasconde le statistiche se si clicca su un altro bottone
+    hideStatistics();
+
     const resultContainer = document.getElementById("resultContainer");
     const loader = document.getElementById("loader");
 

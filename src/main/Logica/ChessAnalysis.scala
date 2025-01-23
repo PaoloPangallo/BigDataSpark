@@ -1,4 +1,4 @@
-import Services.{DataLoader, OpeningAnalyzer, RatingAnalyzer, ResultAnalyzer}
+import Services.{DataLoader, OpeningAnalyzer, RatingAnalyzer, ResultAnalyzer, StatisticsGenerator}
 import Utils.FileUtils
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
@@ -18,6 +18,9 @@ object ChessAnalysis {
     try {
       val chessData = DataLoader.loadDataset(spark, filePath)
 
+      chessData.printSchema()
+
+
       val resultAnalyzer = new ResultAnalyzer()
       resultAnalyzer.analyze(chessData, outputDir)
 
@@ -26,6 +29,10 @@ object ChessAnalysis {
 
       val ratingAnalyzer = new RatingAnalyzer()
       ratingAnalyzer.analyze(chessData, outputDir)
+
+      val statisticsGenerator = new StatisticsGenerator()
+      statisticsGenerator.generate(chessData, outputDir)
+
 
       println(s"Risultati salvati in CSV nella directory: $outputDir")
     } finally {
