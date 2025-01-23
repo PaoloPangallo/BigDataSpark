@@ -24,7 +24,7 @@
     <!-- Configurazione servlet per AvgRatingDiff -->
     <servlet>
         <servlet-name>AvgRatingDiffServlet</servlet-name>
-        <servlet-class>Servlets.AvgRatingDiffServlet</servlet-class>
+        <servlet-class>Servlets.QueryServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>AvgRatingDiffServlet</servlet-name>

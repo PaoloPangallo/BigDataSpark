@@ -2,7 +2,6 @@ package Services
 
 import Utils.FileUtils
 import org.apache.spark.sql.{Dataset, Row}
-import org.apache.spark.sql.functions._
 
 class ResultAnalyzer {
   def analyze(chessData: Dataset[Row], outputDir: String): Unit = {

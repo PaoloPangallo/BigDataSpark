@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AvgRatingDiffServlet extends HttpServlet {
-    private static final Logger LOGGER = Logger.getLogger(AvgRatingDiffServlet.class.getName());
+public class QueryServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(QueryServlet.class.getName());
     private DataService dataService;
 
     @Override
@@ -28,9 +28,11 @@ public class AvgRatingDiffServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String filename = req.getParameter("filename");
         LOGGER.info("Ricevuta richiesta GET per AvgRatingDiffServlet.");
+
         try {
-            String content = dataService.getFileContent("avgRatingDiff.csv");
+            String content = dataService.getFileContent(filename);
             ServletUtils.sendResponse(resp, content, "text/csv");
             LOGGER.info("Risposta inviata con successo per AvgRatingDiffServlet.");
         } catch (IOException e) {

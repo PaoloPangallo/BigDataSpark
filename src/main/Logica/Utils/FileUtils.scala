@@ -22,7 +22,7 @@ object FileUtils {
     }
   }
 
-  def renameCSVFile(sourceDir: String, targetFileName: String): Unit = {
+  private def renameCSVFile(sourceDir: String, targetFileName: String): Unit = {
     val sourceDirFile = new File(sourceDir)
     if (sourceDirFile.exists() && sourceDirFile.isDirectory) {
       val partFile = sourceDirFile.listFiles().find(_.getName.startsWith("part-"))

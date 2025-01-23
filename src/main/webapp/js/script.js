@@ -37,10 +37,14 @@ function loadData(endpoint) {
     // Mostra il loader
     loader.classList.remove("hidden");
     resultContainer.innerHTML = "";
+    console.log("ciao");
+    console.log(endpoint);
+
 
     // Effettua una richiesta al server
     fetch(endpoint)
         .then(response => {
+
             if (!response.ok) {
                 throw new Error("Errore nel recupero dei dati");
             }

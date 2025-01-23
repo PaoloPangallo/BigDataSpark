@@ -1,4 +1,4 @@
-package Servlets;
+/*package Servlets;
 
 import Services.DataService;
 import Utils.ServletUtils;
@@ -42,4 +42,4 @@ public class ResultCountsServlet extends HttpServlet {
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File non trovato: resultCounts.csv");
         }
     }
-}
+} */

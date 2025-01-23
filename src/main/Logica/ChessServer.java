@@ -1,12 +1,10 @@
-import Servlets.AvgRatingDiffServlet;
-import Servlets.PopularOpeningsServlet;
-import Servlets.ResultCountsServlet;
+import Servlets.QueryServlet;
+
 import Servlets.RootServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.util.logging.Logger;
 
@@ -15,7 +13,7 @@ public class ChessServer {
     private static final Logger LOGGER = Logger.getLogger(ChessServer.class.getName());
     private static final String OUTPUT_DIRECTORY = "C:/Users/paolo/Desktop/ProgettoSparkScacchi";
     private static final String WEB_APP_DIRECTORY = "src/main/webapp"; // Percorso dei file statici
-    private static final int SERVER_PORT = 8082;
+    private static final int SERVER_PORT = 8088;
 
     public static void main(String[] args) {
         try {
@@ -35,9 +33,9 @@ public class ChessServer {
             servletContext.setInitParameter("outputDirectory", OUTPUT_DIRECTORY);
 
             // Aggiungi servlet
-            servletContext.addServlet(ResultCountsServlet.class, "/resultCounts");
-            servletContext.addServlet(PopularOpeningsServlet.class, "/popularOpenings");
-            servletContext.addServlet(AvgRatingDiffServlet.class, "/avgRatingDiff");
+          /*  servletContext.addServlet(ResultCountsServlet.class, "/resultCounts");
+            servletContext.addServlet(PopularOpeningsServlet.class, "/popularOpenings");*/
+            servletContext.addServlet(QueryServlet.class, "/avgRatingDiff");
             servletContext.addServlet(RootServlet.class, "/");
 
             // Combina gestori statici e servlet

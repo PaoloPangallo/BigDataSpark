@@ -8,16 +8,16 @@
 </head>
 <body>
 <header>
-    <h1>Benvenuto nel server di analisi scacchi!</h1>
+    <h1>Francius Miciuz!</h1>
 </header>
 <main>
     <h2>Esplora i dati:</h2>
     <div class="endpoint-links">
-        <button onclick="loadData('/resultCounts')">Vittorie per colore</button>
-        <button onclick="loadData('/popularOpenings')">Aperture più popolari</button>
-        <button onclick="loadData('/avgRatingDiff')">Differenze medie di rating</button>
+        <button onclick="loadData('avgRatingDiff?filename=resultCounts.csv')">Vittorie 2 per colore</button>
+        <button onclick="loadData('avgRatingDiff?filename=popularOpenings.csv')">Aperture più popolari</button>
+        <button onclick="loadData('avgRatingDiff?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
     </div>
-    <div id="loader" class="hidden"></div>
+    <div id="loader" class="hidden">Caricamento...</div>
     <div id="resultContainer">I risultati saranno visualizzati qui...</div>
 </main>
 <footer>
