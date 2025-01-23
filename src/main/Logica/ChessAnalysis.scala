@@ -4,6 +4,7 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
 import java.io.{File, IOException}
+import java.nio.file.{Files, Paths}
 
 object ChessAnalysis {
 
@@ -15,25 +16,48 @@ object ChessAnalysis {
     val outputDir = "C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output"
     ensureOutputDirectory(outputDir)
 
+
+
     try {
       val chessData = DataLoader.loadDataset(spark, filePath)
 
       chessData.printSchema()
 
-      val resultAnalyzer = new ResultAnalyzer()
-      resultAnalyzer.analyze(chessData, outputDir)
+      val performanceReport = new StringBuilder()
+      val (_, totalTime) = measureExecutionTime("Intera analisi", performanceReport) {
+        // ResultAnalyzer
+        measureExecutionTime("ResultAnalyzer", performanceReport) {
+          val resultAnalyzer = new ResultAnalyzer()
+          resultAnalyzer.analyze(chessData, outputDir)
+        }
 
-      val openingAnalyzer = new OpeningAnalyzer()
-      openingAnalyzer.analyze(chessData, outputDir)
+        // OpeningAnalyzer
+        measureExecutionTime("OpeningAnalyzer", performanceReport) {
+          val openingAnalyzer = new OpeningAnalyzer()
+          openingAnalyzer.analyze(chessData, outputDir)
+        }
 
-      val ratingAnalyzer = new RatingAnalyzer()
-      ratingAnalyzer.analyze(chessData, outputDir)
+        // RatingAnalyzer
+        measureExecutionTime("RatingAnalyzer", performanceReport) {
+          val ratingAnalyzer = new RatingAnalyzer()
+          ratingAnalyzer.analyze(chessData, outputDir)
+        }
 
-      val statisticsGenerator = new StatisticsGenerator()
-      statisticsGenerator.generate(chessData, outputDir)
+        // StatisticsGenerator
+        measureExecutionTime("StatisticsGenerator", performanceReport) {
+          val statisticsGenerator = new StatisticsGenerator()
+          statisticsGenerator.generate(chessData, outputDir)
+        }
 
-      val mvpStatistics = new MVPStatistics()
-      mvpStatistics.analyze(chessData, outputDir)
+        // MVPStatistics
+        measureExecutionTime("MVPStatistics", performanceReport) {
+          val mvpStatistics = new MVPStatistics()
+          mvpStatistics.analyze(chessData, outputDir)
+        }
+      }
+
+      // Salva il report delle performance
+      savePerformanceReport(performanceReport, totalTime, outputDir)
 
       println(s"Risultati salvati in CSV nella directory: $outputDir")
     } finally {
@@ -41,10 +65,33 @@ object ChessAnalysis {
     }
   }
 
+  // Funzione per misurare il tempo di esecuzione di un blocco di codice
+  private def measureExecutionTime[T](taskName: String, report: StringBuilder = null)(block: => T): (T, Double) = {
+    val startTime = System.nanoTime()
+    val result = block
+    val endTime = System.nanoTime()
+    val duration = (endTime - startTime) / 1e9
+    println(s"Tempo di esecuzione per $taskName: $duration secondi")
+    if (report != null) {
+      report.append(s" - $taskName: $duration secondi\n")
+    }
+    (result, duration) // Restituisci il risultato e il tempo
+  }
+
+  // Salva il report delle performance in un file
+  private def savePerformanceReport(report: StringBuilder, totalTime: Double, outputDir: String): Unit = {
+    report.insert(0, s"Analisi completata in $totalTime secondi\n")
+    val reportPath = Paths.get(outputDir, "performance_report.txt")
+    Files.write(reportPath, report.toString().getBytes)
+    println(s"Report delle performance salvato in: $reportPath")
+  }
+
   private def configureLogging(): Unit = {
     Logger.getLogger("org.apache").setLevel(Level.WARN)
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+
   }
+
 
   private def createSparkSession(): SparkSession = {
     SparkSession.builder()
@@ -54,6 +101,9 @@ object ChessAnalysis {
       .config("spark.executor.memory", "2g")
       .config("spark.executor.cores", "2")
       .config("spark.driver.memory", "2g")
+      .config("spark.eventLog.enabled", "true") // Abilita il logging degli eventi di Spark
+      .config("spark.eventLog.dir", "/tmp/spark-events")
+      // Directory per gli eventi
       .getOrCreate()
   }
 
