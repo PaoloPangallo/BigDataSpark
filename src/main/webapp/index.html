@@ -5,20 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Analysis Server</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Libreria Chart.js -->
 </head>
 <body>
 <header>
-    <h1>Francius Miciuz!</h1>
+    <h1>Benvenuto!</h1>
 </header>
 <main>
     <h2>Esplora i dati:</h2>
     <div class="endpoint-links">
-        <button onclick="loadData('avgRatingDiff?filename=resultCounts.csv')">Vittorie 2 per colore</button>
-        <button onclick="loadData('avgRatingDiff?filename=popularOpenings.csv')">Aperture più popolari</button>
-        <button onclick="loadData('avgRatingDiff?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
+        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie 2 per colore</button>
+        <button onclick="loadData('query?filename=popularOpenings.csv')">Aperture più popolari</button>
+        <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
+        <button onclick="loadStatistics()">Visualizza Statistiche</button>
     </div>
     <div id="loader" class="hidden">Caricamento...</div>
     <div id="resultContainer">I risultati saranno visualizzati qui...</div>
+
+    <!-- Contenitori per i grafici -->
+    <div id="chartContainer1" style="margin-top: 20px;">
+        <canvas id="chart1" width="400" height="200"></canvas>
+    </div>
+    <div id="chartContainer2" style="margin-top: 20px;">
+        <canvas id="chart2" width="400" height="200"></canvas>
+    </div>
 </main>
 <footer>
     Chess Analysis Server © 2025

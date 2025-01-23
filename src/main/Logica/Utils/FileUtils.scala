@@ -12,6 +12,8 @@ object FileUtils {
         .write
         .mode("overwrite")
         .option("header", "true")
+        .option("quote", "\"")       // Configura l'uso delle virgolette
+        .option("escape", "\"")      // Configura l'escape per le virgolette
         .csv(outputDir)
 
       renameCSVFile(outputDir, targetFileName)

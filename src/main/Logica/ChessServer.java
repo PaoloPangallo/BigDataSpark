@@ -33,9 +33,10 @@ public class ChessServer {
             servletContext.setInitParameter("outputDirectory", OUTPUT_DIRECTORY);
 
             // Aggiungi servlet
-          /*  servletContext.addServlet(ResultCountsServlet.class, "/resultCounts");
-            servletContext.addServlet(PopularOpeningsServlet.class, "/popularOpenings");*/
-            servletContext.addServlet(QueryServlet.class, "/avgRatingDiff");
+
+            servletContext.addServlet(QueryServlet.class, "/query");
+            servletContext.addServlet(QueryServlet.class, "/getStatistics");
+
             servletContext.addServlet(RootServlet.class, "/");
 
             // Combina gestori statici e servlet

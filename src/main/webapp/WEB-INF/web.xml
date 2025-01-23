@@ -11,35 +11,19 @@
         <param-value>C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output</param-value>
     </context-param>
 
-    <!-- Configurazione servlet per ResultCounts -->
-    <servlet>
-        <servlet-name>ResultCountsServlet</servlet-name>
-        <servlet-class>Servlets.ResultCountsServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ResultCountsServlet</servlet-name>
-        <url-pattern>/resultCounts</url-pattern>
-    </servlet-mapping>
+
 
     <!-- Configurazione servlet per AvgRatingDiff -->
     <servlet>
-        <servlet-name>AvgRatingDiffServlet</servlet-name>
+        <servlet-name>QueryServlet</servlet-name>
         <servlet-class>Servlets.QueryServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AvgRatingDiffServlet</servlet-name>
+        <servlet-name>QueryServlet</servlet-name>
         <url-pattern>/avgRatingDiff</url-pattern>
     </servlet-mapping>
 
-    <!-- Configurazione servlet per PopularOpenings -->
-    <servlet>
-        <servlet-name>PopularOpeningsServlet</servlet-name>
-        <servlet-class>Servlets.PopularOpeningsServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>PopularOpeningsServlet</servlet-name>
-        <url-pattern>/popularOpenings</url-pattern>
-    </servlet-mapping>
+
 
     <!-- Configurazione servlet per la root -->
     <servlet>

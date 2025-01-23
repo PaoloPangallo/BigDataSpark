@@ -6,7 +6,7 @@
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff; /* Sfondo bianco */
+    background-color: #ffffff;
 }
 
 .data-table th,
@@ -17,21 +17,48 @@
     border: 1px solid #ddd;
 }
 
+/* Intestazione con gradiente */
 .data-table th {
-    background: linear-gradient(90deg, #6c5ce7, #a29bfe); /* Gradiente per l'intestazione */
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe); /* Colori accattivanti */
     color: #fff;
     text-transform: uppercase;
     font-weight: bold;
+    letter-spacing: 1px;
 }
 
+/* Righe alternate */
 .data-table tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #f9f9f9; /* Grigio chiaro */
 }
 
-.data-table tr:hover {
-    background-color: #dfe6e9;
-    cursor: pointer;
+.data-table tr:nth-child(odd) {
+    background-color: #fdfdfd; /* Quasi bianco */
 }
+
+/* Righe hover con transizione */
+.data-table tr:hover {
+    background-color: #dfe6e9; /* Grigio tenue */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Colonne colorate */
+.data-table td:nth-child(1) {
+    font-weight: bold;
+    color: #6c5ce7; /* Viola per la prima colonna */
+}
+
+.data-table td:nth-child(2) {
+    color: #0984e3; /* Blu per i valori */
+}
+
+/* Ombra e bordi arrotondati */
+.data-table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
 
 /* Stile bottoni */
 button {
@@ -39,17 +66,18 @@ button {
     font-size: 1rem;
     font-weight: bold;
     color: white;
-    background-color: #6c5ce7;
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe);
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-    background-color: #4834d4;
+    background: linear-gradient(90deg, #4834d4, #6c5ce7);
     transform: translateY(-2px);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Intestazione */
@@ -58,7 +86,45 @@ header {
     padding: 20px;
     background: linear-gradient(90deg, #6c5ce7, #a29bfe);
     color: white;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
     border-bottom: 4px solid #4834d4;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #a29bfe, #6c5ce7);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-top: 4px solid #4834d4;
+    box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Loader */
+#loader {
+    margin: 20px auto;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6c5ce7;
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Contenitori per i grafici */
+#chartContainer1, #chartContainer2 {
+    width: 90%;
+    margin: 30px auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
 }

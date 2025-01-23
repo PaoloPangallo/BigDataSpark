@@ -20,5 +20,10 @@ public class DataService {
             throw new IOException("File non trovato: " + file.getAbsolutePath());
         }
         return new String(Files.readAllBytes(file.toPath()));
+
+    }
+    public boolean fileExists(String filename) {
+        File file = new File(outputDirectory, filename);
+        return file.exists();
     }
 }
