@@ -19,6 +19,8 @@
         <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
         <button onclick="loadStatistics()">Visualizza Statistiche Generali</button>
         <button onclick="loadMVPStatistics()">Visualizza Statistiche MVP</button> <!-- Pulsante per MVP -->
+        <button onclick="loadDateStatistics()">Visualizza Statistiche delle Date</button>
+
     </div>
 
     <!-- Loader con animazione -->
@@ -66,6 +68,28 @@
             <h3>Tornei più giocati</h3>
         </div>
     </div>
+
+    <div id="dateStatisticsContainer" class="hidden">
+        <h2>Statistiche delle Date</h2>
+
+        <!-- Giorno con il maggior numero di partite -->
+        <div id="mostGamesDay" class="date-stat-section">
+            <h3>Giorno con il maggior numero di partite</h3>
+        </div>
+
+        <!-- Giorno con il maggior numero di partite per un'apertura -->
+        <div id="mostGamesForOpeningDay" class="date-stat-section">
+            <h3>Giorno con il maggior numero di partite per un'apertura</h3>
+        </div>
+
+        <!-- Giorno con il maggior numero di aperture uniche -->
+        <div id="dayWithMostUniqueOpenings" class="date-stat-section">
+            <h3>Giorno con il maggior numero di aperture uniche</h3>
+        </div>
+    </div>
+
+
+
 </main>
 <footer>
     Chess Analysis Server © 2025

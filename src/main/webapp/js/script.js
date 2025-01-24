@@ -214,3 +214,62 @@ function loadData(endpoint) {
             console.error("Errore:", error);
         });
 }
+
+// Funzione per caricare statistiche delle date
+function loadDateStatistics() {
+    console.log("Funzione loadDateStatistics chiamata");
+    hideAllSections(); // Nascondi tutte le sezioni prima di caricare le statistiche delle date
+
+    const loader = document.getElementById('loader');
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Mostra il loader
+    loader.classList.remove('hidden');
+
+    // Effettua la richiesta all'endpoint delle statistiche delle date
+    fetch('/query?type=dateStatistics')
+        .then(response => {
+            if (!response.ok) throw new Error("Errore durante il recupero delle statistiche delle date");
+            return response.json();
+        })
+        .then(data => {
+            console.log("Dati delle statistiche delle date ricevuti:", data);
+
+            loader.classList.add('hidden');
+            resultContainer.innerHTML = ''; // Pulisci il contenitore prima di aggiungere i dati
+
+            // Crea una tabella per ogni gruppo di statistiche
+            let html = '';
+
+            // Tabella per mostGamesDay
+            html += '<h3>Giorno con più partite</h3>';
+            html += '<table class="data-table"><tr><th>Day</th><th>TotalGames</th></tr>';
+            data.mostGamesDay.forEach(row => {
+                html += `<tr><td>${row.Day}</td><td>${row.TotalGames}</td></tr>`;
+            });
+            html += '</table>';
+
+            // Tabella per mostGamesForOpeningDay
+            html += '<h3>Giorno con più partite per apertura</h3>';
+            html += '<table class="data-table"><tr><th>Day</th><th>Apertura siciliana</th></tr>';
+            data.mostGamesForOpeningDay.forEach(row => {
+                html += `<tr><td>${row.Day}</td><td>${row["Apertura siciliana"]}</td></tr>`;
+            });
+            html += '</table>';
+
+            // Tabella per dayWithMostUniqueOpenings
+            html += '<h3>Giorno con più aperture uniche</h3>';
+            html += '<table class="data-table"><tr><th>Day</th><th>UniqueOpenings</th></tr>';
+            data.dayWithMostUniqueOpenings.forEach(row => {
+                html += `<tr><td>${row.Day}</td><td>${row.UniqueOpenings}</td></tr>`;
+            });
+            html += '</table>';
+
+            resultContainer.innerHTML = html; // Mostra i dati nella pagina
+        })
+        .catch(error => {
+            loader.classList.add('hidden');
+            resultContainer.innerHTML = "Errore nel caricamento delle statistiche delle date.";
+            console.error("Errore:", error);
+        });
+}

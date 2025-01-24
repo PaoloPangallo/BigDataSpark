@@ -15,8 +15,7 @@ object ChessAnalysis {
     val filePath = "C:/Users/paolo/Desktop/Big Data/chess_games.csv/chess_games.csv"
     val outputDir = "C:/Users/paolo/Desktop/ProgettoSparkScacchi/Output"
     ensureOutputDirectory(outputDir)
-
-
+    println(s"Spark Version: ${spark.version}")
 
     try {
       val chessData = DataLoader.loadDataset(spark, filePath)
@@ -54,18 +53,25 @@ object ChessAnalysis {
           val mvpStatistics = new MVPStatistics()
           mvpStatistics.analyze(chessData, outputDir)
         }
+
+        // DateStatistics
+        measureExecutionTime("DateStatistics", performanceReport) {
+          val dateStatistics = new DateStatistics()
+          dateStatistics.analyze(chessData, outputDir)
+        }
       }
 
       // Salva il report delle performance
       savePerformanceReport(performanceReport, totalTime, outputDir)
 
       println(s"Risultati salvati in CSV nella directory: $outputDir")
+      Thread.sleep(5 * 60 * 1000)
+
     } finally {
       spark.stop()
     }
   }
 
-  // Funzione per misurare il tempo di esecuzione di un blocco di codice
   private def measureExecutionTime[T](taskName: String, report: StringBuilder = null)(block: => T): (T, Double) = {
     val startTime = System.nanoTime()
     val result = block
@@ -75,10 +81,9 @@ object ChessAnalysis {
     if (report != null) {
       report.append(s" - $taskName: $duration secondi\n")
     }
-    (result, duration) // Restituisci il risultato e il tempo
+    (result, duration)
   }
 
-  // Salva il report delle performance in un file
   private def savePerformanceReport(report: StringBuilder, totalTime: Double, outputDir: String): Unit = {
     report.insert(0, s"Analisi completata in $totalTime secondi\n")
     val reportPath = Paths.get(outputDir, "performance_report.txt")
@@ -89,9 +94,7 @@ object ChessAnalysis {
   private def configureLogging(): Unit = {
     Logger.getLogger("org.apache").setLevel(Level.WARN)
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
-
   }
-
 
   private def createSparkSession(): SparkSession = {
     SparkSession.builder()
@@ -101,9 +104,8 @@ object ChessAnalysis {
       .config("spark.executor.memory", "2g")
       .config("spark.executor.cores", "2")
       .config("spark.driver.memory", "2g")
-      .config("spark.eventLog.enabled", "true") // Abilita il logging degli eventi di Spark
+      .config("spark.eventLog.enabled", "true")
       .config("spark.eventLog.dir", "/tmp/spark-events")
-      // Directory per gli eventi
       .getOrCreate()
   }
 

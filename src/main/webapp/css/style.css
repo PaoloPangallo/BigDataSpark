@@ -1,4 +1,51 @@
-/* Miglioramento della tabella */
+/* Contenitore per le statistiche delle date */
+#dateStatisticsContainer {
+    width: 90%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Sezioni individuali delle statistiche delle date */
+.date-stat-section {
+    margin: 15px 0;
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Titolo delle sezioni */
+.date-stat-section h3 {
+    color: #6c5ce7;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Testo dei dati */
+.date-stat-section p {
+    font-size: 1rem;
+    color: #333;
+    margin: 5px 0;
+    font-weight: normal;
+}
+
+/* Hover per le sezioni */
+.date-stat-section:hover {
+    background-color: #eaf2ff; /* Colore tenue */
+    border-color: #6c5ce7; /* Viola */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+
+
 .data-table {
     width: 90%;
     margin: 20px auto;

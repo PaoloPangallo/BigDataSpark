@@ -37,6 +37,8 @@ public class QueryServlet extends HttpServlet {
                 handleStatisticsRequest(resp);
             } else if ("mvp".equals(type)) {
                 handleMVPRequest(resp);
+            } else if ("dateStatistics".equals(type)) { // Nuovo tipo per DateStatistics
+                handleDateStatisticsRequest(resp);
             } else if (filename != null && !filename.trim().isEmpty()) {
                 handleFileRequest(filename, resp);
             } else {
@@ -82,6 +84,29 @@ public class QueryServlet extends HttpServlet {
                 + "\"topPlayersPercentage\": " + ServletUtils.csvToJson(playersPercentage) + ","
                 + "\"topWinningOpenings\": " + ServletUtils.csvToJson(openings) + ","
                 + "\"topTournaments\": " + ServletUtils.csvToJson(tournaments)
+                + "}";
+
+        ServletUtils.sendResponse(resp, jsonResponse, "application/json");
+    }
+
+    private void handleDateStatisticsRequest(HttpServletResponse resp) throws IOException {
+        LOGGER.info("Richiesta per il file delle statistiche delle date.");
+        if (!dataService.fileExists("mostGamesDay.csv") ||
+                !dataService.fileExists("mostGamesForOpeningDay.csv") ||
+                !dataService.fileExists("dayWithMostUniqueOpenings.csv")) {
+
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file delle statistiche delle date non trovato.");
+            return;
+        }
+
+        String mostGamesDay = dataService.getFileContent("mostGamesDay.csv");
+        String mostGamesForOpeningDay = dataService.getFileContent("mostGamesForOpeningDay.csv");
+        String dayWithMostUniqueOpenings = dataService.getFileContent("dayWithMostUniqueOpenings.csv");
+
+        String jsonResponse = "{"
+                + "\"mostGamesDay\": " + ServletUtils.csvToJson(mostGamesDay) + ","
+                + "\"mostGamesForOpeningDay\": " + ServletUtils.csvToJson(mostGamesForOpeningDay) + ","
+                + "\"dayWithMostUniqueOpenings\": " + ServletUtils.csvToJson(dayWithMostUniqueOpenings)
                 + "}";
 
         ServletUtils.sendResponse(resp, jsonResponse, "application/json");

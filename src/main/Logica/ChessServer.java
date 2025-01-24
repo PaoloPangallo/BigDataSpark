@@ -35,7 +35,7 @@ public class ChessServer {
             servletContext.addServlet(QueryServlet.class, "/query"); // Servlet principale per query
             servletContext.addServlet(QueryServlet.class, "/getStatistics"); // Endpoint per statistiche generali
             servletContext.addServlet(QueryServlet.class, "/getMVPStatistics"); // Endpoint per statistiche MVP
-
+            servletContext.addServlet(QueryServlet.class, "/getDateStatistics"); // Endpoint per statistiche delle date
             servletContext.addServlet(RootServlet.class, "/"); // Root servlet
 
             // Combina gestori statici e servlet
