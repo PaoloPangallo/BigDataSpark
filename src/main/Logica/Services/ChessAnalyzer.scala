@@ -31,7 +31,6 @@ class OpeningAnalyzer {
     val sortedOpenings = popularOpenings.orderBy($"OpeningCount".desc)
 
     // Debug: controlla i dati prima di salvare
-    sortedOpenings.show(60, false)
 
     // Salva i risultati
     FileUtils.saveAndRename(sortedOpenings, outputDir, "popularOpenings.csv")
@@ -43,6 +42,11 @@ class RatingAnalyzer {
   def analyze(chessData: Dataset[Row], outputDir: String): Unit = {
     val avgRatingDiff = chessData
       .selectExpr("avg(WhiteRatingDiff) as AvgWhiteRatingDiff", "avg(BlackRatingDiff) as AvgBlackRatingDiff")
-    FileUtils.saveAndRename(avgRatingDiff, outputDir, "avgRatingDiff.csv")
-  }
-}
+    try {
+      FileUtils.saveAndRename(avgRatingDiff, outputDir, "avgRatingDiff.csv")
+    } catch {
+      case e: Exception =>
+        println(s"Errore durante il salvataggio: ${e.getMessage}")
+    }
+
+  }}
