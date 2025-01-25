@@ -4,24 +4,68 @@ import Utils.FileUtils
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row}
 
+import org.apache.log4j.Logger
+
 class StatisticsGenerator {
+  private val logger = Logger.getLogger(getClass.getName)
+
   def generate(chessData: Dataset[Row], outputDir: String): Unit = {
     import chessData.sparkSession.implicits._
 
-    // Calcolo delle statistiche
-    val maxWhiteRatingDiff = chessData.agg(max($"WhiteRatingDiff")).as[Double].head()
-    val maxBlackRatingDiff = chessData.agg(max($"BlackRatingDiff")).as[Double].head()
-    val avgWhiteElo = chessData.agg(avg($"WhiteElo")).as[Double].head()
-    val avgBlackElo = chessData.agg(avg($"BlackElo")).as[Double].head()
+    logger.info("Inizio generazione statistiche...")
 
-    // Conteggio dei risultati
-    val resultCounts = chessData.groupBy("Result").count()
-    val totalGames = chessData.count()
-    val winPercentage = resultCounts.filter($"Result" === "1-0").select($"count").as[Long].head() * 100.0 / totalGames
-    val drawPercentage = resultCounts.filter($"Result" === "1/2-1/2").select($"count").as[Long].head() * 100.0 / totalGames
-    val lossPercentage = resultCounts.filter($"Result" === "0-1").select($"count").as[Long].head() * 100.0 / totalGames
+    // **1. Pre-selezione delle colonne necessarie**
+    val filteredChessData = chessData
+      .select("WhiteRatingDiff", "BlackRatingDiff", "WhiteElo", "BlackElo", "Result")
+      .cache() // Caching per evitare rielaborazioni
 
-    // Organizza le statistiche in un dataset
+    // **2. Calcolo delle statistiche principali**
+    val maxWhiteRatingDiff = filteredChessData.agg(max($"WhiteRatingDiff")).as[Double].head()
+    logger.info(s"Massima differenza di rating (White): $maxWhiteRatingDiff")
+
+    val maxBlackRatingDiff = filteredChessData.agg(max($"BlackRatingDiff")).as[Double].head()
+    logger.info(s"Massima differenza di rating (Black): $maxBlackRatingDiff")
+
+    val avgWhiteElo = filteredChessData.agg(avg($"WhiteElo")).as[Double].head()
+    logger.info(s"Media punteggio ELO (White): $avgWhiteElo")
+
+    val avgBlackElo = filteredChessData.agg(avg($"BlackElo")).as[Double].head()
+    logger.info(s"Media punteggio ELO (Black): $avgBlackElo")
+
+    // **3. Conteggio e percentuali sui risultati**
+    val resultCounts = filteredChessData.groupBy("Result").count()
+    logger.info("Conteggio dei risultati completato.")
+
+    val totalGames = filteredChessData.count()
+    val winPercentage = {
+      val winCount = resultCounts
+        .filter($"Result" === "1-0")
+        .select($"count").as[Long].collect() // Raccogli i risultati in un array
+        .headOption.getOrElse(0L) // Ottieni il primo elemento, o 0L se l'array è vuoto
+
+      winCount * 100.0 / totalGames
+    }
+
+    val drawPercentage = {
+      val drawCount = resultCounts
+        .filter($"Result" === "1/2-1/2")
+        .select($"count").as[Long].collect()
+        .headOption.getOrElse(0L)
+
+      drawCount * 100.0 / totalGames
+    }
+
+    val lossPercentage = {
+      val lossCount = resultCounts
+        .filter($"Result" === "0-1")
+        .select($"count").as[Long].collect()
+        .headOption.getOrElse(0L)
+
+      lossCount * 100.0 / totalGames
+    }
+
+
+    // **4. Creazione del dataset delle statistiche**
     val stats = Seq(
       ("Massima differenza di rating (White)", maxWhiteRatingDiff),
       ("Massima differenza di rating (Black)", maxBlackRatingDiff),
@@ -32,7 +76,12 @@ class StatisticsGenerator {
       ("Percentuale vittorie (Black)", lossPercentage)
     ).toDF("Statistic", "Value")
 
-    // Salva i risultati in un file CSV
+    // **5. Salvataggio dei risultati**
     FileUtils.saveAndRename(stats, outputDir, "chessStatistics.csv")
+    logger.info("Statistiche salvate con successo.")
+
+    // **6. Libera il cache**
+    filteredChessData.unpersist()
+    logger.info("Memoria liberata.")
   }
 }

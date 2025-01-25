@@ -10,38 +10,45 @@ class DateStatistics {
 
     import chessData.sparkSession.implicits._
 
-    // **1. Giorno con il maggior numero di partite**
-    val mostGamesDay = chessData
+    // **1. Pre-selezione delle colonne necessarie**
+    val filteredChessData = chessData
+      .select("UTCDate", "Opening") // Seleziona solo le colonne necessarie
+      .cache() // Cache per evitare di rielaborare i dati
+
+    // **2. Giorno con il maggior numero di partite**
+    val mostGamesDay = filteredChessData
       .groupBy("UTCDate") // Raggruppa per giorno
       .count() // Conta il numero di partite per giorno
       .orderBy(desc("count")) // Ordina in ordine decrescente
-      .limit(3)
+      .limit(3) // Prendi i primi 3
       .withColumnRenamed("UTCDate", "Day")
       .withColumnRenamed("count", "TotalGames")
 
     FileUtils.saveAndRename(mostGamesDay, outputDir, "mostGamesDay.csv")
 
-    // **2. Giorno con più partite per una specifica apertura**
-    val mostGamesForOpeningDay = chessData
+    // **3. Giorno con più partite per una specifica apertura**
+    val mostGamesForOpeningDay = filteredChessData
       .filter($"Opening" === "Sicilian Defense") // Filtra per apertura specifica
       .groupBy("UTCDate") // Raggruppa per giorno
       .count() // Conta il numero di partite per giorno
       .orderBy(desc("count")) // Ordina in ordine decrescente
-      .limit(3) // Prendi il giorno con più partite per l'apertura specificata
+      .limit(3) // Prendi i primi 3 giorni
       .withColumnRenamed("UTCDate", "Day")
-      .withColumnRenamed("count", "Apertura siciliana")
+      .withColumnRenamed("count", "SicilianDefenseGames")
 
     FileUtils.saveAndRename(mostGamesForOpeningDay, outputDir, "mostGamesForOpeningDay.csv")
 
-    // **3. Giorno con il maggior numero di aperture uniche**
-    val dayWithMostUniqueOpenings = chessData
+    // **4. Giorno con il maggior numero di aperture uniche**
+    val dayWithMostUniqueOpenings = filteredChessData
       .groupBy("UTCDate") // Raggruppa per giorno
-      .agg(countDistinct("Opening").alias("UniqueOpenings")) // Conta le aperture uniche
+      .agg(countDistinct("Opening").as("UniqueOpenings")) // Conta le aperture uniche
       .orderBy(desc("UniqueOpenings")) // Ordina in ordine decrescente
-      .limit(3)
+      .limit(3) // Prendi i primi 3 giorni
       .withColumnRenamed("UTCDate", "Day")
 
     FileUtils.saveAndRename(dayWithMostUniqueOpenings, outputDir, "dayWithMostUniqueOpenings.csv")
+
+    // **5. Liberare il cache dopo l'uso**
+    filteredChessData.unpersist()
   }
 }
-

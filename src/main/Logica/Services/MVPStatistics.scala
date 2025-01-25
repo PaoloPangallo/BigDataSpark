@@ -10,24 +10,26 @@ class MVPStatistics {
 
     import chessData.sparkSession.implicits._
 
-    // **1. Giocatori più vincenti (assoluti)**
-    val topPlayersAbsolute = chessData
+    // **1. Pre-selezione delle colonne necessarie**
+    val filteredChessData = chessData
+      .select("Result", "White", "Black")
       .filter($"Result" === "1-0" || $"Result" === "0-1") // Filtra solo le partite vinte
+      .cache() // Memorizza in memoria per operazioni successive
+
+    // **2. Giocatori più vincenti (assoluti)**
+    val topPlayersAbsolute = filteredChessData
       .withColumn("Winner", when($"Result" === "1-0", $"White").otherwise($"Black")) // Determina il vincitore
-      .groupBy("Winner") // Raggruppa per vincitore
-      .count() // Conta il numero di vittorie
-      .orderBy(desc("count")) // Ordina in ordine decrescente
+      .groupBy("Winner")
+      .agg(count("*").as("WinsAbsolute")) // Conta le vittorie assolute
+      .orderBy(desc("WinsAbsolute")) // Ordina in ordine decrescente
       .limit(3) // Prendi i primi 3
-      .withColumnRenamed("Winner", "Player")
-      .withColumnRenamed("count", "WinsAbsolute")
 
     FileUtils.saveAndRename(topPlayersAbsolute, outputDir, "topPlayersAbsolute.csv")
 
-    // **2. Giocatori con la percentuale di vittorie più alta (con almeno 20 partite)**
-    val totalGamesPerPlayer = chessData
-      .filter($"Result" === "1-0" || $"Result" === "0-1") // Filtra solo le partite valide
+    // **3. Giocatori con la percentuale di vittorie più alta (con almeno 20 partite)**
+    val totalGamesPerPlayer = filteredChessData
       .withColumn("Player", when($"Result" === "1-0", $"White").otherwise($"Black")) // Identifica il giocatore
-      .groupBy("Player") // Raggruppa per giocatore
+      .groupBy("Player")
       .agg(
         count("*").as("TotalGames"), // Conta il numero totale di partite
         sum(when($"Result" === "1-0" && $"White" === $"Player", 1).otherwise(0) + // Vittorie come bianco

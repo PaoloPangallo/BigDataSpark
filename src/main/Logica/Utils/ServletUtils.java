@@ -6,7 +6,8 @@ import com.google.gson.JsonObject;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ServletUtils {
@@ -55,8 +56,28 @@ public class ServletUtils {
         resp.getWriter().write(content);
     }
 
-    public static void sendError(HttpServletResponse resp, int statusCode, String errorMessage) throws IOException {
-        resp.setStatus(statusCode);
-        resp.getWriter().write("<html><body><h1>" + errorMessage + "</h1></body></html>");
+    public static void sendError(HttpServletResponse resp, int statusCode, String errorMessage) {
+        try {
+            resp.setStatus(statusCode);
+            resp.setContentType("text/html; charset=UTF-8");
+            try (var writer = resp.getWriter()) {
+                writer.write("<!DOCTYPE html>");
+                writer.write("<html lang='it'>");
+                writer.write("<head><meta charset='UTF-8'><title>Errore</title></head>");
+                writer.write("<body style='font-family: Arial, sans-serif; text-align: center; margin-top: 50px;'>");
+                writer.write("<h1 style='color: red;'>Errore " + statusCode + "</h1>");
+                writer.write("<p>" + errorMessage + "</p>");
+                writer.write("<hr>");
+                writer.write("<p><em>Chess Analysis Server</em></p>");
+                writer.write("</body>");
+                writer.write("</html>");
+            }
+        } catch (IOException e) {
+            // Gestisci eventuali errori di I/O durante l'invio della risposta
+            Logger.getLogger(ServletUtils.class.getName()).log(Level.SEVERE, "Errore durante l'invio del messaggio di errore", e);
+        }
     }
+
 }
+
+

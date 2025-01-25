@@ -64,8 +64,7 @@ object ChessAnalysis {
       // Salva il report delle performance
       savePerformanceReport(performanceReport, totalTime, outputDir)
 
-      println(s"Risultati salvati in CSV nella directory: $outputDir")
-      Thread.sleep(5 * 60 * 1000)
+
 
     } finally {
       spark.stop()
@@ -101,9 +100,9 @@ object ChessAnalysis {
       .appName("Chess Analysis")
       .master("local[*]")
       .config("spark.driver.host", "127.0.0.1")
-      .config("spark.executor.memory", "2g")
-      .config("spark.executor.cores", "2")
-      .config("spark.driver.memory", "2g")
+      .config("spark.executor.memory", "4g")
+      .config("spark.executor.cores", "4")
+      .config("spark.driver.memory", "4g")
       .config("spark.eventLog.enabled", "true")
       .config("spark.eventLog.dir", "/tmp/spark-events")
       .getOrCreate()
