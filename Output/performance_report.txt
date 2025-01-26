@@ -1,8 +1,1 @@
-Analisi completata in 66.111122 secondi
- - ResultAnalyzer: 16.1377596 secondi
- - OpeningAnalyzer: 17.9166998 secondi
- - RatingAnalyzer: 4.236391999 secondi
- - StatisticsGenerator: 7.9973946 secondi
- - MVPStatistics: 11.689011899 secondi
- - DateStatistics: 8.124628099 secondi
- - Intera analisi: 66.111122 secondi
+Analisi completata in 109.6348332 secondi

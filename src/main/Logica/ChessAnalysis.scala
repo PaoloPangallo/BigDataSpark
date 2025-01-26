@@ -1,12 +1,9 @@
 import Services._
-import Utils.FileUtils
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
-import java.io.{File, IOException}
 import java.nio.file.{Files, Paths}
-
-
+import java.util.UUID
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,35 +21,49 @@ object ChessAnalysis {
 
     try {
       val chessData = DataLoader.loadDataset(spark, filePath)
-
-
       println(s"Numero di record caricati: ${chessData.count()}")
 
       val performanceReport = new StringBuilder()
       val (_, totalTime) = measureExecutionTime("Intera analisi") {
         // Future per analisi parallele
         val resultFuture = Future {
+          val resultOutputDir = s"$outputDir/ResultAnalyzer_${UUID.randomUUID()}"
+          ensureOutputDirectory(resultOutputDir)
           measureExecutionTime("ResultAnalyzer") {
             val resultAnalyzer = new ResultAnalyzer()
-            resultAnalyzer.analyze(chessData, outputDir)
+            resultAnalyzer.analyze(chessData, resultOutputDir)
           }
         }
 
         val openingFuture = Future {
+          val openingOutputDir = s"$outputDir/OpeningAnalyzer_${UUID.randomUUID()}"
+          ensureOutputDirectory(openingOutputDir)
           measureExecutionTime("OpeningAnalyzer") {
             val openingAnalyzer = new OpeningAnalyzer()
-            openingAnalyzer.analyze(chessData, outputDir)
+            openingAnalyzer.analyze(chessData, openingOutputDir)
           }
         }
 
         val ratingFuture = Future {
+          val ratingOutputDir = s"$outputDir/RatingAnalyzer_${UUID.randomUUID()}"
+          ensureOutputDirectory(ratingOutputDir)
           measureExecutionTime("RatingAnalyzer") {
             val ratingAnalyzer = new RatingAnalyzer()
-            ratingAnalyzer.analyze(chessData, outputDir)
+            ratingAnalyzer.analyze(chessData, ratingOutputDir)
           }
         }
 
-        // Esecuzione sequenziale delle altre analisi
+        // **SpecificQueryGenerator Integration**
+        val specificQueryFuture = Future {
+          val specificQueryOutputDir = s"$outputDir/SpecificQueryGenerator_${UUID.randomUUID()}"
+          ensureOutputDirectory(specificQueryOutputDir)
+          measureExecutionTime("SpecificQueryGenerator") {
+            val specificQueryGenerator = new SpecificQueryGenerator()
+            specificQueryGenerator.generate(chessData, specificQueryOutputDir)
+          }
+        }
+
+        // Analisi sequenziali
         measureExecutionTime("StatisticsGenerator") {
           val statisticsGenerator = new StatisticsGenerator()
           statisticsGenerator.generate(chessData, outputDir)
@@ -68,8 +79,8 @@ object ChessAnalysis {
           dateStatistics.analyze(chessData, outputDir)
         }
 
-        // Aspetta il completamento delle Future
-        Await.result(Future.sequence(Seq(resultFuture, openingFuture, ratingFuture)), Duration.Inf)
+        // Aspetta il completamento delle Future parallele
+        Await.result(Future.sequence(Seq(resultFuture, openingFuture, ratingFuture, specificQueryFuture)), Duration.Inf)
       }
 
       // Salva il report delle performance
@@ -96,7 +107,7 @@ object ChessAnalysis {
     println(s"Report delle performance salvato in: $reportPath")
   }
 
-  // Configura il logging per Spark
+  // Configura il logging
   private def configureLogging(): Unit = {
     Logger.getLogger("org.apache").setLevel(Level.WARN)
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
@@ -107,14 +118,8 @@ object ChessAnalysis {
     SparkSession.builder()
       .appName("Chess Analysis")
       .master("local[*]")
-      .config("spark.driver.host", "127.0.0.1")
       .config("spark.executor.memory", "4g")
-      .config("spark.executor.cores", "4")
-      .config("spark.driver.memory", "4g")
-      .config("spark.eventLog.enabled", "true")
-      .config("spark.eventLog.dir", "/tmp/spark-events")
       .config("spark.sql.shuffle.partitions", "8") // Ottimizzazione delle partizioni shuffle
-      .config("spark.sql.autoBroadcastJoinThreshold", -1) // Evita broadcast join per grandi dataset
       .getOrCreate()
   }
 
@@ -122,9 +127,9 @@ object ChessAnalysis {
   private def ensureOutputDirectory(outputDir: String): Unit = {
     val dir = Paths.get(outputDir)
     if (Files.exists(dir)) {
-      Files.list(dir).forEach(file => Files.delete(file)) // Rimuove i file nella directory
+      Files.list(dir).forEach(file => Files.delete(file))
     } else {
-      Files.createDirectories(dir) // Crea la directory se non esiste
+      Files.createDirectories(dir)
     }
   }
 }
