@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Analysis Server</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Libreria Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script> <!-- Libreria Chart.js -->
 </head>
 <body>
 <header>
@@ -14,13 +14,13 @@
 <main>
     <h2>Esplora i dati:</h2>
     <div class="endpoint-links">
-        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie per colore</button>
-        <button onclick="loadData('query?filename=popularOpenings.csv')">Aperture più popolari</button>
-        <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
-        <button onclick="loadStatistics()">Visualizza Statistiche Generali</button>
-        <button onclick="loadMVPStatistics()">Visualizza Statistiche MVP</button> <!-- Pulsante per MVP -->
-        <button onclick="loadDateStatistics()">Visualizza Statistiche delle Date</button>
-        <button onclick="loadSpecificQueries()">Visualizza Query Specifiche</button>
+        <button id="btnResultCounts">Vittorie per colore</button>
+        <button id="btnPopularOpenings">Aperture più popolari</button>
+        <button id="btnAvgRatingDiff">Differenze medie di rating</button>
+        <button id="btnStatistics">Visualizza Statistiche Generali</button>
+        <button id="btnMVPStatistics">Visualizza Statistiche MVP</button>
+        <button id="btnDateStatistics">Visualizza Statistiche delle Date</button>
+        <button id="btnSpecificQueries">Visualizza Query Specifiche</button>
     </div>
 
     <!-- Loader con animazione -->
@@ -29,78 +29,113 @@
     <!-- Contenitore per i risultati della tabella -->
     <div id="resultContainer"></div>
 
-    <!-- Sezione per i grafici con titoli -->
+    <!-- Sezione per i grafici -->
     <div class="chart-section hidden" id="chartSection1">
         <h3>Valori Assoluti</h3>
-        <div id="chartContainer1" class="chart-container">
-            <canvas id="chart1" width="400" height="200"></canvas>
-        </div>
+        <canvas id="chart1" width="400" height="200"></canvas>
     </div>
 
     <div class="chart-section hidden" id="chartSection2">
         <h3>Percentuali</h3>
-        <div id="chartContainer2" class="chart-container">
-            <canvas id="chart2" width="400" height="200"></canvas>
+        <canvas id="chart2" width="400" height="200"></canvas>
+    </div>
+
+    <!-- 📌 Contenitore per le statistiche MVP -->
+    <div id="mvpContainer" class="hidden">
+        <h2>Statistiche MVP</h2>
+
+        <!-- 🔹 Giocatori più vincenti (assoluto) -->
+        <div class="mvp-wrapper">
+            <div class="mvp-table-container">
+                <h3>Giocatori più vincenti (assoluto)</h3>
+                <div id="mvpTopPlayersAbsolute" class="mvp-section"></div>
+            </div>
+            <div class="mvp-chart-container">
+                <canvas id="mvpChartAbsolute"></canvas>
+            </div>
+        </div>
+
+        <!-- 🔹 Giocatori con maggior percentuale di vittorie -->
+        <div class="mvp-wrapper">
+            <div class="mvp-table-container">
+                <h3>Giocatori con maggior percentuale di vittorie</h3>
+                <div id="mvpTopPlayersPercentage" class="mvp-section"></div>
+            </div>
+            <div class="mvp-chart-container">
+                <canvas id="mvpChartPercentage"></canvas>
+            </div>
+        </div>
+
+        <!-- 🔹 Aperture più vincenti -->
+        <div class="mvp-wrapper">
+            <div class="mvp-table-container">
+                <h3>Aperture più vincenti</h3>
+                <div id="mvpTopWinningOpenings" class="mvp-section"></div>
+            </div>
+            <div class="mvp-chart-container">
+                <canvas id="mvpChartOpenings"></canvas>
+            </div>
+        </div>
+
+        <!-- 🔹 Tornei più giocati -->
+        <div class="mvp-wrapper">
+            <div class="mvp-table-container">
+                <h3>Tornei più giocati</h3>
+                <div id="mvpTopTournaments" class="mvp-section"></div>
+            </div>
+            <div class="mvp-chart-container">
+                <canvas id="mvpChartTournaments"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- Contenitore per le statistiche MVP -->
-    <div id="mvpContainer" class="hidden">
-        <h2>Statistiche MVP</h2>
-        <div id="mvpTopPlayersAbsolute" class="mvp-section">
-            <h3>Giocatori più vincenti (assoluto)</h3>
-        </div>
-        <div id="mvpTopPlayersPercentage" class="mvp-section">
-            <h3>Giocatori con maggior percentuale di vittorie</h3>
-        </div>
-        <div id="mvpTopWinningOpenings" class="mvp-section">
-            <h3>Aperture più vincenti</h3>
-        </div>
-        <div id="mvpTopTournaments" class="mvp-section">
-            <h3>Tornei più giocati</h3>
-        </div>
-    </div>
 
     <!-- Contenitore per le statistiche delle date -->
     <div id="dateStatisticsContainer" class="hidden">
         <h2>Statistiche delle Date</h2>
-        <div id="mostGamesDay" class="date-stat-section">
-            <h3>Giorno con il maggior numero di partite</h3>
-        </div>
-        <div id="mostGamesForOpeningDay" class="date-stat-section">
-            <h3>Giorno con il maggior numero di partite per un'apertura</h3>
-        </div>
-        <div id="dayWithMostUniqueOpenings" class="date-stat-section">
-            <h3>Giorno con il maggior numero di aperture uniche</h3>
-        </div>
+        <div id="mostGamesDay" class="date-stat-section"><h3>Giorno con il maggior numero di partite</h3></div>
+        <div id="mostGamesForOpeningDay" class="date-stat-section"><h3>Giorno con il maggior numero di partite per un'apertura</h3></div>
+        <div id="dayWithMostUniqueOpenings" class="date-stat-section"><h3>Giorno con il maggior numero di aperture uniche</h3></div>
     </div>
 
     <!-- Contenitore per le query specifiche -->
     <div id="specificQueriesContainer" class="hidden">
         <h2>Query Specifiche</h2>
-        <div id="queryOpeningWinStats" class="query-section">
-            <h3>Aperture con il maggior numero di vittorie</h3>
-        </div>
-        <div id="queryRatingDistribution" class="query-section">
-            <h3>Distribuzione delle partite per fascia di rating</h3>
-        </div>
-        <div id="queryTimeoutOpenings" class="query-section">
-            <h3>Aperture più utilizzate in partite terminate per Timeout</h3>
-        </div>
-        <div id="queryRatingDiffByOpening" class="query-section">
-            <h3>Differenze di rating medie per apertura</h3>
-        </div>
-        <div id="queryDrawByTimeControl" class="query-section">
-            <h3>Percentuale di pareggi per controllo del tempo</h3>
-        </div>
-        <div id="queryWinByRatingDiff" class="query-section">
-            <h3>Percentuale di vittorie per differenza di rating</h3>
-        </div>
+        <div id="queryOpeningWinStats" class="query-section"><h3>Aperture con il maggior numero di vittorie</h3></div>
+        <div id="queryRatingDistribution" class="query-section"><h3>Distribuzione delle partite per fascia di rating</h3></div>
+        <div id="queryTimeoutOpenings" class="query-section"><h3>Aperture più utilizzate in partite terminate per Timeout</h3></div>
+        <div id="queryRatingDiffByOpening" class="query-section"><h3>Differenze di rating medie per apertura</h3></div>
+        <div id="queryDrawByTimeControl" class="query-section"><h3>Percentuale di pareggi per controllo del tempo</h3></div>
+        <div id="queryWinByRatingDiff" class="query-section"><h3>Percentuale di vittorie per differenza di rating</h3></div>
     </div>
 </main>
 <footer>
     Chess Analysis Server © 2025
 </footer>
-<script src="js/script.js"></script>
+
+<!-- Caricamento ottimizzato degli script con defer -->
+<script src="js/UIManager.js" defer></script>
+<script src="js/DataFetcher.js" defer></script>
+<script src="js/TableGenerator.js" defer></script>
+<script src="js/ChartManager.js" defer></script> <!-- 🔹 Deve essere caricato prima di StatisticsLoader -->
+<script src="js/StatisticsLoader.js" defer></script>
+<script src="js/MVPLoader.js" defer></script>
+<script src="js/DataStatisticsLoader.js" defer></script>
+<script src="js/SpecificQueriesLoader.js" defer></script>
+<script src="js/ChessApp.js" defer></script>
+
+<script>
+    window.onload = () => {
+        if (typeof ChartManager === 'undefined') {
+            console.error("Errore: ChartManager non è stato caricato correttamente.");
+        } else if (typeof ChessApp !== 'undefined') {
+            const app = new ChessApp();
+            app.initialize();
+        } else {
+            console.error("Errore: ChessApp non è stato caricato correttamente.");
+        }
+    };
+</script>
+
 </body>
 </html>
