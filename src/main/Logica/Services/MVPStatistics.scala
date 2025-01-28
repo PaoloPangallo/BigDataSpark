@@ -13,8 +13,8 @@ class MVPStatistics {
     // **1. Pre-selezione delle colonne necessarie**
     val filteredChessData = chessData
       .select("Result", "White", "Black")
-      .filter($"Result" === "1-0" || $"Result" === "0-1") // Filtra solo le partite vinte
-      .cache() // Memorizza in memoria per operazioni successive
+      .filter($"Result" === "1-0" || $"Result" === "0-1")
+      .cache()
 
     // **2. Giocatori più vincenti (assoluti)**
     val topPlayersAbsolute = filteredChessData

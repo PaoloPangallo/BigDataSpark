@@ -37,8 +37,10 @@ public class QueryServlet extends HttpServlet {
                 handleStatisticsRequest(resp);
             } else if ("mvp".equals(type)) {
                 handleMVPRequest(resp);
-            } else if ("dateStatistics".equals(type)) { // Nuovo tipo per DateStatistics
+            } else if ("dateStatistics".equals(type)) {
                 handleDateStatisticsRequest(resp);
+            } else if ("specificQueries".equals(type)) { // Nuovo tipo per gestire query specifiche
+                handleSpecificQueryRequest(resp);
             } else if (filename != null && !filename.trim().isEmpty()) {
                 handleFileRequest(filename, resp);
             } else {
@@ -109,6 +111,43 @@ public class QueryServlet extends HttpServlet {
                 + "\"dayWithMostUniqueOpenings\": " + ServletUtils.csvToJson(dayWithMostUniqueOpenings)
                 + "}";
 
+        ServletUtils.sendResponse(resp, jsonResponse, "application/json");
+    }
+
+    private void handleSpecificQueryRequest(HttpServletResponse resp) throws IOException {
+        LOGGER.info("Richiesta per i file generati da SpecificQueryGenerator.");
+
+        // Verifica se i file esistono
+        if (!dataService.fileExists("openingWinStats.csv") ||
+                !dataService.fileExists("ratingDistribution.csv") ||
+                !dataService.fileExists("timeoutOpenings.csv") ||
+                !dataService.fileExists("ratingDiffByOpening.csv") ||
+                !dataService.fileExists("drawByTimeControl.csv") ||
+                !dataService.fileExists("winByRatingDiff.csv")) {
+
+            ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file generati da SpecificQueryGenerator non trovato.");
+            return;
+        }
+
+        // Leggi il contenuto dei file
+        String openingWinStats = dataService.getFileContent("openingWinStats.csv");
+        String ratingDistribution = dataService.getFileContent("ratingDistribution.csv");
+        String timeoutOpenings = dataService.getFileContent("timeoutOpenings.csv");
+        String ratingDiffByOpening = dataService.getFileContent("ratingDiffByOpening.csv");
+        String drawByTimeControl = dataService.getFileContent("drawByTimeControl.csv");
+        String winByRatingDiff = dataService.getFileContent("winByRatingDiff.csv");
+
+        // Crea la risposta JSON
+        String jsonResponse = "{"
+                + "\"openingWinStats\": " + ServletUtils.csvToJson(openingWinStats) + ","
+                + "\"ratingDistribution\": " + ServletUtils.csvToJson(ratingDistribution) + ","
+                + "\"timeoutOpenings\": " + ServletUtils.csvToJson(timeoutOpenings) + ","
+                + "\"ratingDiffByOpening\": " + ServletUtils.csvToJson(ratingDiffByOpening) + ","
+                + "\"drawByTimeControl\": " + ServletUtils.csvToJson(drawByTimeControl) + ","
+                + "\"winByRatingDiff\": " + ServletUtils.csvToJson(winByRatingDiff)
+                + "}";
+
+        // Invia la risposta
         ServletUtils.sendResponse(resp, jsonResponse, "application/json");
     }
 

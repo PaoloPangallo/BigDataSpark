@@ -32,6 +32,8 @@ function createTableFromCSV(csvData) {
     const headerRow = thead.insertRow();
     headers.forEach(header => {
         const th = document.createElement("th");
+        th.textContent = header.trim().replace(/"/g, ""); // Rimuove le virgolette
+
         th.textContent = header.trim();
         headerRow.appendChild(th);
     });
@@ -273,3 +275,55 @@ function loadDateStatistics() {
             console.error("Errore:", error);
         });
 }
+
+// Funzione per caricare query specifiche
+function loadSpecificQueries() {
+    hideAllSections(); // Nascondi tutte le sezioni esistenti prima di caricare le query specifiche
+
+    const loader = document.getElementById('loader');
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Mostra il loader
+    loader.classList.remove('hidden');
+
+    // Elenco dei file CSV da caricare
+    const endpoints = [
+        { id: 'queryOpeningWinStats', title: 'Aperture con il maggior numero di vittorie', filename: 'openingWinStats.csv' },
+        { id: 'queryRatingDistribution', title: 'Distribuzione delle partite per fascia di rating', filename: 'ratingDistribution.csv' },
+        { id: 'queryTimeoutOpenings', title: 'Aperture più utilizzate in partite terminate per Timeout', filename: 'timeoutOpenings.csv' },
+        { id: 'queryRatingDiffByOpening', title: 'Differenze di rating medie per apertura', filename: 'ratingDiffByOpening.csv' },
+        { id: 'queryDrawByTimeControl', title: 'Percentuale di pareggi per controllo del tempo', filename: 'drawByTimeControl.csv' },
+        { id: 'queryWinByRatingDiff', title: 'Percentuale di vittorie per differenza di rating', filename: 'winByRatingDiff.csv' },
+    ];
+
+    // Carica ogni file CSV e mostra i risultati
+    Promise.all(
+        endpoints.map(endpoint =>
+            fetch(`/query?filename=${endpoint.filename}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Errore nel caricamento di ${endpoint.filename}`);
+                    return response.text();
+                })
+                .then(data => ({ id: endpoint.id, title: endpoint.title, data }))
+        )
+    )
+        .then(results => {
+            loader.classList.add('hidden');
+            resultContainer.innerHTML = ''; // Pulisci il contenitore dei risultati
+
+            results.forEach(result => {
+                const section = document.createElement('div');
+                section.classList.add('query-section');
+                section.innerHTML = `<h3>${result.title}</h3>`;
+                const table = createTableFromCSV(result.data);
+                section.appendChild(table);
+                resultContainer.appendChild(section);
+            });
+        })
+        .catch(error => {
+            loader.classList.add('hidden');
+            resultContainer.innerHTML = 'Errore nel caricamento delle query specifiche.';
+            console.error('Errore:', error);
+        });
+}
+

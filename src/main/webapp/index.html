@@ -14,13 +14,13 @@
 <main>
     <h2>Esplora i dati:</h2>
     <div class="endpoint-links">
-        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie  per colore</button>
+        <button onclick="loadData('query?filename=resultCounts.csv')">Vittorie per colore</button>
         <button onclick="loadData('query?filename=popularOpenings.csv')">Aperture più popolari</button>
         <button onclick="loadData('query?filename=avgRatingDiff.csv')">Differenze medie di rating</button>
         <button onclick="loadStatistics()">Visualizza Statistiche Generali</button>
         <button onclick="loadMVPStatistics()">Visualizza Statistiche MVP</button> <!-- Pulsante per MVP -->
         <button onclick="loadDateStatistics()">Visualizza Statistiche delle Date</button>
-
+        <button onclick="loadSpecificQueries()">Visualizza Query Specifiche</button>
     </div>
 
     <!-- Loader con animazione -->
@@ -47,49 +47,56 @@
     <!-- Contenitore per le statistiche MVP -->
     <div id="mvpContainer" class="hidden">
         <h2>Statistiche MVP</h2>
-
-        <!-- Giocatori più vincenti (assoluto) -->
         <div id="mvpTopPlayersAbsolute" class="mvp-section">
             <h3>Giocatori più vincenti (assoluto)</h3>
         </div>
-
-        <!-- Giocatori con maggior percentuale di vittorie -->
         <div id="mvpTopPlayersPercentage" class="mvp-section">
             <h3>Giocatori con maggior percentuale di vittorie</h3>
         </div>
-
-        <!-- Aperture più vincenti -->
         <div id="mvpTopWinningOpenings" class="mvp-section">
             <h3>Aperture più vincenti</h3>
         </div>
-
-        <!-- Tornei più giocati -->
         <div id="mvpTopTournaments" class="mvp-section">
             <h3>Tornei più giocati</h3>
         </div>
     </div>
 
+    <!-- Contenitore per le statistiche delle date -->
     <div id="dateStatisticsContainer" class="hidden">
         <h2>Statistiche delle Date</h2>
-
-        <!-- Giorno con il maggior numero di partite -->
         <div id="mostGamesDay" class="date-stat-section">
             <h3>Giorno con il maggior numero di partite</h3>
         </div>
-
-        <!-- Giorno con il maggior numero di partite per un'apertura -->
         <div id="mostGamesForOpeningDay" class="date-stat-section">
             <h3>Giorno con il maggior numero di partite per un'apertura</h3>
         </div>
-
-        <!-- Giorno con il maggior numero di aperture uniche -->
         <div id="dayWithMostUniqueOpenings" class="date-stat-section">
             <h3>Giorno con il maggior numero di aperture uniche</h3>
         </div>
     </div>
 
-
-
+    <!-- Contenitore per le query specifiche -->
+    <div id="specificQueriesContainer" class="hidden">
+        <h2>Query Specifiche</h2>
+        <div id="queryOpeningWinStats" class="query-section">
+            <h3>Aperture con il maggior numero di vittorie</h3>
+        </div>
+        <div id="queryRatingDistribution" class="query-section">
+            <h3>Distribuzione delle partite per fascia di rating</h3>
+        </div>
+        <div id="queryTimeoutOpenings" class="query-section">
+            <h3>Aperture più utilizzate in partite terminate per Timeout</h3>
+        </div>
+        <div id="queryRatingDiffByOpening" class="query-section">
+            <h3>Differenze di rating medie per apertura</h3>
+        </div>
+        <div id="queryDrawByTimeControl" class="query-section">
+            <h3>Percentuale di pareggi per controllo del tempo</h3>
+        </div>
+        <div id="queryWinByRatingDiff" class="query-section">
+            <h3>Percentuale di vittorie per differenza di rating</h3>
+        </div>
+    </div>
 </main>
 <footer>
     Chess Analysis Server © 2025

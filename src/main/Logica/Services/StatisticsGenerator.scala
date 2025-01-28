@@ -40,8 +40,8 @@ class StatisticsGenerator {
     val winPercentage = {
       val winCount = resultCounts
         .filter($"Result" === "1-0")
-        .select($"count").as[Long].collect() // Raccogli i risultati in un array
-        .headOption.getOrElse(0L) // Ottieni il primo elemento, o 0L se l'array è vuoto
+        .select($"count").as[Long].collect()
+        .headOption.getOrElse(0L)
 
       winCount * 100.0 / totalGames
     }
