@@ -1,14 +1,21 @@
 import Services._
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 import java.nio.file.{Files, Paths}
-import java.util.UUID
+import java.util.concurrent.ForkJoinPool
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
+import org.apache.commons.io.FileUtils
+
+import java.io.File
+import scala.language.reflectiveCalls
 
 object ChessAnalysis {
+
+  // Pool di thread ottimizzato con ForkJoinPool per gestire Future in parallelo
+  implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(new ForkJoinPool(4))
 
   def main(args: Array[String]): Unit = {
     configureLogging()
@@ -20,77 +27,49 @@ object ChessAnalysis {
     println(s"Spark Version: ${spark.version}")
 
     try {
-      val chessData = DataLoader.loadDataset(spark, filePath)
+      val chessData = DataLoader.loadDataset(spark, filePath) // **Rimosso cache()**
       println(s"Numero di record caricati: ${chessData.count()}")
 
       val performanceReport = new StringBuilder()
       val (_, totalTime) = measureExecutionTime("Intera analisi") {
-        // Future per analisi parallele
-        val resultFuture = Future {
-          val resultOutputDir = s"$outputDir/ResultAnalyzer_${UUID.randomUUID()}"
-          ensureOutputDirectory(resultOutputDir)
-          measureExecutionTime("ResultAnalyzer") {
-            val resultAnalyzer = new ResultAnalyzer()
-            resultAnalyzer.analyze(chessData, resultOutputDir)
-          }
-        }
 
-        val openingFuture = Future {
-          val openingOutputDir = s"$outputDir/OpeningAnalyzer_${UUID.randomUUID()}"
-          ensureOutputDirectory(openingOutputDir)
-          measureExecutionTime("OpeningAnalyzer") {
-            val openingAnalyzer = new OpeningAnalyzer()
-            openingAnalyzer.analyze(chessData, openingOutputDir)
-          }
-        }
+        val tasks = Seq(
+          runAnalysis("ResultAnalyzer", outputDir, chessData, new ResultAnalyzer()),
+          runAnalysis("OpeningAnalyzer", outputDir, chessData, new OpeningAnalyzer()),
+          runAnalysis("RatingAnalyzer", outputDir, chessData, new RatingAnalyzer()),
+          runAnalysis("SpecificQueryGenerator", outputDir, chessData, new SpecificQueryGenerator()),
+          runAnalysis("MVPStatistics", outputDir, chessData, new MVPStatistics()),
+          runAnalysis("DateStatistics", outputDir, chessData, new DateStatistics())
+        )
 
-        val ratingFuture = Future {
-          val ratingOutputDir = s"$outputDir/RatingAnalyzer_${UUID.randomUUID()}"
-          ensureOutputDirectory(ratingOutputDir)
-          measureExecutionTime("RatingAnalyzer") {
-            val ratingAnalyzer = new RatingAnalyzer()
-            ratingAnalyzer.analyze(chessData, ratingOutputDir)
-          }
-        }
-
-        // **SpecificQueryGenerator Integration**
-        val specificQueryFuture = Future {
-          val specificQueryOutputDir = s"$outputDir/SpecificQueryGenerator_${UUID.randomUUID()}"
-          ensureOutputDirectory(specificQueryOutputDir)
-          measureExecutionTime("SpecificQueryGenerator") {
-            val specificQueryGenerator = new SpecificQueryGenerator()
-            specificQueryGenerator.generate(chessData, specificQueryOutputDir)
-          }
-        }
-
-        // Analisi sequenziali
-        measureExecutionTime("StatisticsGenerator") {
-          val statisticsGenerator = new StatisticsGenerator()
-          statisticsGenerator.generate(chessData, outputDir)
-        }
-
-        measureExecutionTime("MVPStatistics") {
-          val mvpStatistics = new MVPStatistics()
-          mvpStatistics.analyze(chessData, outputDir)
-        }
-
-        measureExecutionTime("DateStatistics") {
-          val dateStatistics = new DateStatistics()
-          dateStatistics.analyze(chessData, outputDir)
-        }
-
-        // Aspetta il completamento delle Future parallele
-        Await.result(Future.sequence(Seq(resultFuture, openingFuture, ratingFuture, specificQueryFuture)), Duration.Inf)
+        // Aspetta il completamento di tutte le analisi parallele
+        Await.result(Future.sequence(tasks), Duration.Inf)
       }
 
       // Salva il report delle performance
       savePerformanceReport(performanceReport, totalTime, outputDir)
+
     } finally {
       spark.stop()
     }
   }
 
-  // Misura il tempo di esecuzione di un task
+  /** Esegue un'analisi in parallelo con gestione sicura della directory di output */
+  private def runAnalysis[T](name: String, baseOutputDir: String, data: Dataset[Row], analyzer: { def analyze(data: Dataset[Row], outputDir: String): Unit }): Future[Unit] = {
+    Future {
+      val outputDir = s"$baseOutputDir/$name"
+      ensureOutputDirectory(outputDir)
+
+      Try(measureExecutionTime(name) {
+        analyzer.analyze(data, outputDir)
+      }) match {
+        case Success(_) => println(s"$name completato con successo.")
+        case Failure(e) => println(s"Errore in $name: ${e.getMessage}")
+      }
+    }
+  }
+
+  /** Misura il tempo di esecuzione di un task */
   private def measureExecutionTime[T](taskName: String)(block: => T): (T, Double) = {
     val startTime = System.nanoTime()
     val result = block
@@ -99,7 +78,7 @@ object ChessAnalysis {
     (result, duration)
   }
 
-  // Salva il report delle performance
+  /** Salva il report delle performance */
   private def savePerformanceReport(report: StringBuilder, totalTime: Double, outputDir: String): Unit = {
     report.insert(0, s"Analisi completata in $totalTime secondi\n")
     val reportPath = Paths.get(outputDir, "performance_report.txt")
@@ -107,29 +86,39 @@ object ChessAnalysis {
     println(s"Report delle performance salvato in: $reportPath")
   }
 
-  // Configura il logging
+  /** Configura il logging */
   private def configureLogging(): Unit = {
     Logger.getLogger("org.apache").setLevel(Level.WARN)
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
   }
 
-  // Crea la sessione Spark
+  /** Crea la sessione Spark con ottimizzazioni */
   private def createSparkSession(): SparkSession = {
     SparkSession.builder()
       .appName("Chess Analysis")
       .master("local[*]")
-      .config("spark.executor.memory", "4g")
-      .config("spark.sql.shuffle.partitions", "8") // Ottimizzazione delle partizioni shuffle
+      .config("spark.driver.host", "127.0.0.1")
+      .config("spark.executor.memory", "6g")
+      .config("spark.executor.cores", "4")
+      .config("spark.driver.memory", "6g")
+      .config("spark.eventLog.enabled", "true")
+      .config("spark.eventLog.dir", "/tmp/spark-events")
+      .config("spark.sql.shuffle.partitions", "4") // Numero ridotto per meno overhead
+      .config("spark.sql.autoBroadcastJoinThreshold", -1) // Evita problemi di broadcast join
       .getOrCreate()
   }
 
-  // Assicura che la directory di output sia pronta
+  /** Assicura che la directory di output sia pronta e svuota il contenuto */
   private def ensureOutputDirectory(outputDir: String): Unit = {
-    val dir = Paths.get(outputDir)
-    if (Files.exists(dir)) {
-      Files.list(dir).forEach(file => Files.delete(file))
+    val dir = new File(outputDir)
+
+    if (dir.exists()) {
+      Try(FileUtils.cleanDirectory(dir)) match {
+        case Failure(e) => println(s"Errore durante la pulizia della directory $outputDir: ${e.getMessage}")
+        case _ => ()
+      }
     } else {
-      Files.createDirectories(dir)
+      dir.mkdirs()
     }
   }
 }

@@ -40,6 +40,44 @@
         <canvas id="chart2" width="400" height="200"></canvas>
     </div>
 
+
+    <!-- 📌 Contenitore per le statistiche generali -->
+    <div id="statisticsContainer" class="hidden">
+        <h2>Statistiche Generali</h2>
+
+        <!-- 🔹 Tabella dei risultati -->
+        <div class="statistics-wrapper">
+            <div class="statistics-table-container">
+                <h3>Dati generali</h3>
+                <div id="resultContainer" class="statistics-section"></div>
+            </div>
+        </div>
+
+        <!-- 🔹 Grafici delle statistiche generali -->
+        <div class="statistics-wrapper">
+            <div class="statistics-chart-container">
+                <h3>Valori Assoluti</h3>
+                <canvas id="statisticsChartAbsolute" width="400" height="200"></canvas>
+            </div>
+            <div class="statistics-chart-container">
+                <h3>Percentuali</h3>
+                <canvas id="statisticsChartPercentage" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezioni per altri grafici (non modificati) -->
+    <div class="chart-section hidden" id="chartSection1">
+        <h3>Valori Assoluti</h3>
+        <canvas id="chart1" width="400" height="200"></canvas>
+    </div>
+
+    <div class="chart-section hidden" id="chartSection2">
+        <h3>Percentuali</h3>
+        <canvas id="chart2" width="400" height="200"></canvas>
+    </div>
+
+
     <!-- 📌 Contenitore per le statistiche MVP -->
     <div id="mvpContainer" class="hidden">
         <h2>Statistiche MVP</h2>
@@ -88,6 +126,10 @@
             </div>
         </div>
     </div>
+
+
+
+
 
 
     <!-- Contenitore per le statistiche delle date -->

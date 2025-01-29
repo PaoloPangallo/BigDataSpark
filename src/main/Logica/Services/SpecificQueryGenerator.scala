@@ -10,7 +10,7 @@ import org.apache.spark.sql.expressions.Window.partitionBy
 class SpecificQueryGenerator {
   private val logger = Logger.getLogger(getClass.getName)
 
-  def generate(chessData: Dataset[Row], outputDir: String): Unit = {
+  def analyze(chessData: Dataset[Row], outputDir: String): Unit = {
     import chessData.sparkSession.implicits._
 
     logger.info("Inizio generazione di query specifiche...")

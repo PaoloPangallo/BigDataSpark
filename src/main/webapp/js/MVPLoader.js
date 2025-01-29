@@ -8,6 +8,8 @@ class MVPLoader {
 
     load() {
         this.uiManager.hideAllSections();
+        document.getElementById('statisticsContainer')?.classList.add('hidden');
+
         this.uiManager.showLoader();
 
         this.dataFetcher.fetchJSON('/query?type=mvp')
