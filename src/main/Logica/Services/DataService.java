@@ -2,7 +2,6 @@ package Services;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class DataService {
     private final String outputDirectory;
@@ -24,6 +23,6 @@ public class DataService {
     }
     public boolean fileExists(String filename) {
         File file = new File(outputDirectory, filename);
-        return file.exists();
+        return !file.exists();
     }
 }

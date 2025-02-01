@@ -23,7 +23,8 @@ class SpecificQueryGenerator {
       .agg(count("*").as("WinCount"))
       .orderBy(desc("WinCount"))
       .limit(6)
-    FileUtils.saveAndRename(openingWinStats, outputDir, "openingWinStats.csv")
+    FileUtils.saveAndRenameParquet(openingWinStats, outputDir,  "openingWinStats.parquet")
+
 
     logger.info("Aperture con il maggior numero di vittorie calcolate.")
 
@@ -35,9 +36,10 @@ class SpecificQueryGenerator {
       .groupBy("RatingRange")
       .agg(count("*").as("GameCount"))
       .orderBy(desc("GameCount"))
-    FileUtils.saveAndRename(ratingDistribution, outputDir, "ratingDistribution.csv")
+    FileUtils.saveAndRenameParquet(ratingDistribution, outputDir,  "ratingDistribution.parquet")
 
     logger.info("Distribuzione delle partite per fascia di rating calcolata.")
+
 
     // **3. Analisi delle aperture più utilizzate in partite terminate per "Timeout"**
     val timeoutOpenings = chessData
@@ -46,7 +48,8 @@ class SpecificQueryGenerator {
       .agg(count("*").as("TimeoutGames"))
       .orderBy(desc("TimeoutGames"))
       .limit(6)
-    FileUtils.saveAndRename(timeoutOpenings, outputDir, "timeoutOpenings.csv")
+    FileUtils.saveAndRenameParquet(timeoutOpenings, outputDir,  "timeoutOpenings.parquet")
+
 
     logger.info("Aperture in partite terminate per Timeout calcolate.")
 
@@ -63,7 +66,7 @@ class SpecificQueryGenerator {
       .orderBy(desc("AvgWhiteRatingDiff"))
       .limit(5) // Prendi solo i primi 5 risultati
 
-    FileUtils.saveAndRename(ratingDiffByOpening, outputDir, "ratingDiffByOpening.csv")
+    FileUtils.saveAndRenameParquet(ratingDiffByOpening, outputDir,  "ratingDiffByOpening.parquet")
 
 
     logger.info("Differenze di rating medie per apertura calcolate.")
@@ -75,7 +78,8 @@ class SpecificQueryGenerator {
       .agg(count("*").as("DrawGames"))
       .withColumn("DrawPercentage", ($"DrawGames" / sum("DrawGames").over()) * 100)
       .orderBy(desc("DrawPercentage"))
-    FileUtils.saveAndRename(drawByTimeControl, outputDir, "drawByTimeControl.csv")
+    FileUtils.saveAndRenameParquet(drawByTimeControl, outputDir,  "drawByTimeControl.parquet")
+
 
     logger.info("Percentuali di pareggi per controllo del tempo calcolate.")
 
@@ -92,7 +96,8 @@ class SpecificQueryGenerator {
       .agg(count("*").as("WinCount"))
       .withColumn("WinPercentage", ($"WinCount" / sum("WinCount").over(partitionBy("RatingDiffCategory"))) * 100)
       .orderBy(col("RatingDiffCategory"), desc("WinPercentage"))
-    FileUtils.saveAndRename(winByRatingDiff, outputDir, "winByRatingDiff.csv")
+    FileUtils.saveAndRenameParquet(winByRatingDiff, outputDir,  "winByRatingDiff.parquet")
+
 
     logger.info("Percentuale di vittorie per differenza di rating calcolata.")
 

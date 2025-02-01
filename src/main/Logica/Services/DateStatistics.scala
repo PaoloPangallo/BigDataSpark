@@ -24,7 +24,9 @@ class DateStatistics {
       .withColumnRenamed("UTCDate", "Day")
       .withColumnRenamed("count", "TotalGames")
 
-    FileUtils.saveAndRename(mostGamesDay, outputDir, "mostGamesDay.csv")
+
+    FileUtils.saveAndRenameParquet(mostGamesDay, outputDir, "mostGamesDay.parquet")
+
 
     // **3. Giorno con più partite per una specifica apertura**
     val mostGamesForOpeningDay = filteredChessData
@@ -36,7 +38,8 @@ class DateStatistics {
       .withColumnRenamed("UTCDate", "Day")
       .withColumnRenamed("count", "SicilianDefenseGames")
 
-    FileUtils.saveAndRename(mostGamesForOpeningDay, outputDir, "mostGamesForOpeningDay.csv")
+    FileUtils.saveAndRenameParquet(mostGamesForOpeningDay, outputDir, "mostGamesDay.parquet")
+
 
     // **4. Giorno con il maggior numero di aperture uniche**
     val dayWithMostUniqueOpenings = filteredChessData
@@ -46,9 +49,19 @@ class DateStatistics {
       .limit(3) // Prendi i primi 3 giorni
       .withColumnRenamed("UTCDate", "Day")
 
-    FileUtils.saveAndRename(dayWithMostUniqueOpenings, outputDir, "dayWithMostUniqueOpenings.csv")
+    FileUtils.saveAndRenameParquet(dayWithMostUniqueOpenings, outputDir, "dayWithMostUniqueOpenings.parquet")
+
 
     // **5. Liberare il cache dopo l'uso**
     filteredChessData.unpersist()
   }
+
+
+
+
+
+
+
+
+
 }

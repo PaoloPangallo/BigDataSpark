@@ -55,7 +55,7 @@ public class QueryServlet extends HttpServlet {
 
     private void handleStatisticsRequest(HttpServletResponse resp) throws IOException {
         LOGGER.info("Richiesta per il file delle statistiche generali.");
-        if (!dataService.fileExists("chessStatistics.csv")) {
+        if (dataService.fileExists("chessStatistics.csv")) {
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File delle statistiche non trovato.");
             return;
         }
@@ -67,10 +67,10 @@ public class QueryServlet extends HttpServlet {
 
     private void handleMVPRequest(HttpServletResponse resp) throws IOException {
         LOGGER.info("Richiesta per il file delle statistiche MVP.");
-        if (!dataService.fileExists("topPlayersAbsolute.csv") ||
-                !dataService.fileExists("topPlayersPercentage.csv") ||
-                !dataService.fileExists("topWinningOpenings.csv") ||
-                !dataService.fileExists("topTournaments.csv")) {
+        if (dataService.fileExists("topPlayersAbsolute.csv") ||
+                dataService.fileExists("topPlayersPercentage.csv") ||
+                dataService.fileExists("topWinningOpenings.csv") ||
+                dataService.fileExists("topTournaments.csv")) {
 
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file delle statistiche MVP non trovato.");
             return;
@@ -93,9 +93,9 @@ public class QueryServlet extends HttpServlet {
 
     private void handleDateStatisticsRequest(HttpServletResponse resp) throws IOException {
         LOGGER.info("Richiesta per il file delle statistiche delle date.");
-        if (!dataService.fileExists("mostGamesDay.csv") ||
-                !dataService.fileExists("mostGamesForOpeningDay.csv") ||
-                !dataService.fileExists("dayWithMostUniqueOpenings.csv")) {
+        if (dataService.fileExists("mostGamesDay.csv") ||
+                dataService.fileExists("mostGamesForOpeningDay.csv") ||
+                dataService.fileExists("dayWithMostUniqueOpenings.csv")) {
 
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file delle statistiche delle date non trovato.");
             return;
@@ -118,12 +118,12 @@ public class QueryServlet extends HttpServlet {
         LOGGER.info("Richiesta per i file generati da SpecificQueryGenerator.");
 
         // Verifica se i file esistono
-        if (!dataService.fileExists("openingWinStats.csv") ||
-                !dataService.fileExists("ratingDistribution.csv") ||
-                !dataService.fileExists("timeoutOpenings.csv") ||
-                !dataService.fileExists("ratingDiffByOpening.csv") ||
-                !dataService.fileExists("drawByTimeControl.csv") ||
-                !dataService.fileExists("winByRatingDiff.csv")) {
+        if (dataService.fileExists("openingWinStats.csv") ||
+                dataService.fileExists("ratingDistribution.csv") ||
+                dataService.fileExists("timeoutOpenings.csv") ||
+                dataService.fileExists("ratingDiffByOpening.csv") ||
+                dataService.fileExists("drawByTimeControl.csv") ||
+                dataService.fileExists("winByRatingDiff.csv")) {
 
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Uno o più file generati da SpecificQueryGenerator non trovato.");
             return;
@@ -153,7 +153,7 @@ public class QueryServlet extends HttpServlet {
 
     private void handleFileRequest(String filename, HttpServletResponse resp) throws IOException {
         LOGGER.info("Richiesta per il file: " + filename);
-        if (!dataService.fileExists(filename)) {
+        if (dataService.fileExists(filename)) {
             ServletUtils.sendError(resp, HttpServletResponse.SC_NOT_FOUND, "File non trovato: " + filename);
             return;
         }

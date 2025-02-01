@@ -9,7 +9,7 @@ import org.apache.log4j.Logger
 class StatisticsGenerator {
   private val logger = Logger.getLogger(getClass.getName)
 
-  def generate(chessData: Dataset[Row], outputDir: String): Unit = {
+  def analyze(chessData: Dataset[Row], outputDir: String): Unit = {
     import chessData.sparkSession.implicits._
 
     logger.info("Inizio generazione statistiche...")
@@ -77,7 +77,8 @@ class StatisticsGenerator {
     ).toDF("Statistic", "Value")
 
     // **5. Salvataggio dei risultati**
-    FileUtils.saveAndRename(stats, outputDir, "chessStatistics.csv")
+    FileUtils.saveAndRenameParquet(stats, outputDir,  "chessStatistics.parquet")
+
     logger.info("Statistiche salvate con successo.")
 
     // **6. Libera il cache**

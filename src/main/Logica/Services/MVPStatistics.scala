@@ -26,7 +26,7 @@ class MVPStatistics {
 
     FileUtils.saveAndRename(topPlayersAbsolute, outputDir, "topPlayersAbsolute.csv")
 
-    // **3. Giocatori con la percentuale di vittorie più alta (con almeno 20 partite)**
+    //**3. Giocatori con la percentuale di vittorie più alta (con almeno 20 partite)**
     val totalGamesPerPlayer = filteredChessData
       .withColumn("Player", when($"Result" === "1-0", $"White").otherwise($"Black")) // Identifica il giocatore
       .groupBy("Player")
@@ -35,8 +35,8 @@ class MVPStatistics {
         sum(when($"Result" === "1-0" && $"White" === $"Player", 1).otherwise(0) + // Vittorie come bianco
           when($"Result" === "0-1" && $"Black" === $"Player", 1).otherwise(0)).as("Wins") // Vittorie come nero
       )
-      .filter($"TotalGames" >= 20) // Considera solo giocatori con almeno 20 partite
-      .withColumn("WinPercentage", ($"Wins" / $"TotalGames") * 100) // Calcola la percentuale di vittorie
+      .filter($"TotalGames" >= 20)
+      .withColumn("WinPercentage", ($"Wins" / $"TotalGames") * 100)
       .orderBy(desc("WinPercentage")) // Ordina per percentuale di vittorie
       .limit(3) // Prendi i primi 3
 

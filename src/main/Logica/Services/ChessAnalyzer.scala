@@ -7,7 +7,8 @@ import org.apache.spark.sql.{Dataset, Row}
 class ResultAnalyzer {
   def analyze(chessData: Dataset[Row], outputDir: String): Unit = {
     val resultCounts = chessData.groupBy("Result").count()
-    FileUtils.saveAndRename(resultCounts, outputDir, "resultCounts.csv")
+    FileUtils.saveAndRenameParquet(resultCounts, outputDir, "resultCounts.parquet")
+
   }
 }
 
@@ -30,10 +31,12 @@ class OpeningAnalyzer {
     // Ordina per la colonna OpeningCount in ordine decrescente
     val sortedOpenings = popularOpenings.orderBy($"OpeningCount".desc)
 
+
     // Debug: controlla i dati prima di salvare
 
     // Salva i risultati
-    FileUtils.saveAndRename(sortedOpenings, outputDir, "popularOpenings.csv")
+    FileUtils.saveAndRenameParquet(sortedOpenings, outputDir, "popularOpenings.parquet")
+
   }
 }
 
@@ -43,7 +46,8 @@ class RatingAnalyzer {
     val avgRatingDiff = chessData
       .selectExpr("avg(WhiteRatingDiff) as AvgWhiteRatingDiff", "avg(BlackRatingDiff) as AvgBlackRatingDiff")
     try {
-      FileUtils.saveAndRename(avgRatingDiff, outputDir, "avgRatingDiff.csv")
+      FileUtils.saveAndRenameParquet(avgRatingDiff, outputDir, "avgRatingDiff.parquet")
+
     } catch {
       case e: Exception =>
         println(s"Errore durante il salvataggio: ${e.getMessage}")

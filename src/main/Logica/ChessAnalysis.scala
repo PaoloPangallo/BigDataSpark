@@ -27,7 +27,7 @@ object ChessAnalysis {
     println(s"Spark Version: ${spark.version}")
 
     try {
-      val chessData = DataLoader.loadDataset(spark, filePath) // **Rimosso cache()**
+      val chessData = DataLoader.loadDataset(spark, filePath)
       println(s"Numero di record caricati: ${chessData.count()}")
 
       val performanceReport = new StringBuilder()
@@ -39,7 +39,10 @@ object ChessAnalysis {
           runAnalysis("RatingAnalyzer", outputDir, chessData, new RatingAnalyzer()),
           runAnalysis("SpecificQueryGenerator", outputDir, chessData, new SpecificQueryGenerator()),
           runAnalysis("MVPStatistics", outputDir, chessData, new MVPStatistics()),
-          runAnalysis("DateStatistics", outputDir, chessData, new DateStatistics())
+          runAnalysis("DateStatistics", outputDir, chessData, new DateStatistics()),
+          runAnalysis("StatisticsGenerator", outputDir, chessData, new StatisticsGenerator())
+
+
         )
 
         // Aspetta il completamento di tutte le analisi parallele
@@ -55,7 +58,7 @@ object ChessAnalysis {
   }
 
   /** Esegue un'analisi in parallelo con gestione sicura della directory di output */
-  private def runAnalysis[T](name: String, baseOutputDir: String, data: Dataset[Row], analyzer: { def analyze(data: Dataset[Row], outputDir: String): Unit }): Future[Unit] = {
+  private def runAnalysis(name: String, baseOutputDir: String, data: Dataset[Row], analyzer: { def analyze(data: Dataset[Row], outputDir: String): Unit }): Future[Unit] = {
     Future {
       val outputDir = s"$baseOutputDir/$name"
       ensureOutputDirectory(outputDir)
@@ -70,6 +73,7 @@ object ChessAnalysis {
   }
 
   /** Misura il tempo di esecuzione di un task */
+
   private def measureExecutionTime[T](taskName: String)(block: => T): (T, Double) = {
     val startTime = System.nanoTime()
     val result = block
