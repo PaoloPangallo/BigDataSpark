@@ -40,7 +40,10 @@ object ChessAnalysis {
           runAnalysis("SpecificQueryGenerator", outputDir, chessData, new SpecificQueryGenerator()),
           runAnalysis("MVPStatistics", outputDir, chessData, new MVPStatistics()),
           runAnalysis("DateStatistics", outputDir, chessData, new DateStatistics()),
-          runAnalysis("StatisticsGenerator", outputDir, chessData, new StatisticsGenerator())
+          runAnalysis("StatisticsGenerator", outputDir, chessData, new StatisticsGenerator()),
+          runAnalysis("TerminationQueryGenerator", outputDir, chessData, new TerminationQueryGenerator()) // <-- Aggiunto qui
+
+
 
 
         )
@@ -49,7 +52,6 @@ object ChessAnalysis {
         Await.result(Future.sequence(tasks), Duration.Inf)
       }
 
-      // Salva il report delle performance
       savePerformanceReport(performanceReport, totalTime, outputDir)
 
     } finally {

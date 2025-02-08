@@ -15,7 +15,6 @@ class SpecificQueryGenerator {
 
     logger.info("Inizio generazione di query specifiche...")
 
-    // **1. Aperture con il maggior numero di vittorie per il bianco e per il nero**
     val openingWinStats = chessData
       .filter($"Result" === "1-0" || $"Result" === "0-1")
       .withColumn("Winner", when($"Result" === "1-0", "White").otherwise("Black"))
@@ -30,9 +29,9 @@ class SpecificQueryGenerator {
 
     // **2. Distribuzione delle partite per fascia di rating (ELO Bianco e Nero)**
     val ratingDistribution = chessData
-      .withColumn("RatingRange", when($"WhiteElo" >= 2000 && $"BlackElo" >= 2000, "2000+")
-        .when($"WhiteElo" >= 1500 && $"BlackElo" >= 1500, "1500-1999")
-        .otherwise("Under 1500"))
+      .selectExpr("CASE WHEN WhiteElo >= 2000 AND BlackElo >= 2000 THEN '2000+' " +
+        "WHEN WhiteElo >= 1500 AND BlackElo >= 1500 THEN '1500-1999' " +
+        "ELSE 'Under 1500' END as RatingRange")
       .groupBy("RatingRange")
       .agg(count("*").as("GameCount"))
       .orderBy(desc("GameCount"))
