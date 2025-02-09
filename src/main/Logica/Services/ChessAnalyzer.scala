@@ -28,13 +28,10 @@ class OpeningAnalyzer {
       .count()
       .withColumnRenamed("count", "OpeningCount")
 
-    // Ordina per la colonna OpeningCount in ordine decrescente
     val sortedOpenings = popularOpenings.orderBy($"OpeningCount".desc)
 
 
-    // Debug: controlla i dati prima di salvare
 
-    // Salva i risultati
     FileUtils.saveAndRenameParquet(sortedOpenings, outputDir, "popularOpenings.parquet")
 
   }

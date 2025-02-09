@@ -1,6 +1,7 @@
-package Services
+package Utils
 
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
+
 import java.io.File
 
 object DataLoader {

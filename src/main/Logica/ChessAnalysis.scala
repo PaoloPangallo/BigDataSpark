@@ -1,4 +1,5 @@
 import Services._
+import Utils.DataLoader
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
@@ -14,7 +15,6 @@ import scala.language.reflectiveCalls
 
 object ChessAnalysis {
 
-  // Pool di thread ottimizzato con ForkJoinPool per gestire Future in parallelo
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(new ForkJoinPool(4))
 
   def main(args: Array[String]): Unit = {

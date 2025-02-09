@@ -52,7 +52,6 @@ class DateStatistics {
     FileUtils.saveAndRenameParquet(dayWithMostUniqueOpenings, outputDir, "dayWithMostUniqueOpenings.parquet")
 
 
-    //  Liberare il cache dopo l'uso**
     filteredChessData.unpersist()
   }
 

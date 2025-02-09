@@ -78,6 +78,13 @@
             <version>20210307</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.knowm.xchart</groupId>
+            <artifactId>xchart</artifactId>
+            <version>3.8.4</version>
+        </dependency>
+
+
         <!-- Spark MLlib -->
         <dependency>
             <groupId>org.apache.spark</groupId>

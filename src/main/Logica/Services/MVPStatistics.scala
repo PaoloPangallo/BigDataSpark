@@ -10,19 +10,17 @@ class MVPStatistics {
 
     import chessData.sparkSession.implicits._
 
-    // **1. Pre-selezione delle colonne necessarie**
     val filteredChessData = chessData
       .select("Result", "White", "Black")
       .filter($"Result" === "1-0" || $"Result" === "0-1")
       .cache()
 
-    // **2. Giocatori più vincenti (assoluti)**
     val topPlayersAbsolute = filteredChessData
       .withColumn("Winner", when($"Result" === "1-0", $"White").otherwise($"Black")) // Determina il vincitore
       .groupBy("Winner")
-      .agg(count("*").as("WinsAbsolute")) // Conta le vittorie assolute
-      .orderBy(desc("WinsAbsolute")) // Ordina in ordine decrescente
-      .limit(3) // Prendi i primi 3
+      .agg(count("*").as("WinsAbsolute"))
+      .orderBy(desc("WinsAbsolute"))
+      .limit(3)
 
     FileUtils.saveAndRename(topPlayersAbsolute, outputDir, "topPlayersAbsolute.csv")
 
