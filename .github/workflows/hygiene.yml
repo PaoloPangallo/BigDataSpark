@@ -1,0 +1,20 @@
+name: Repository hygiene
+
+on:
+  push:
+    branches: [master, portfolio-cleanup-2026-10]
+  pull_request:
+
+jobs:
+  verify-generated-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that dependency cache and IDE folders are not tracked
+        run: |
+          test ! -e node_modules
+          test ! -e .idea
+          if git ls-files | grep -E '(^|/)node_modules/|(^|/)\.idea/|\.crc$' ; then
+            echo "Generated dependencies, IDE files or Spark CRC sidecars are tracked"
+            exit 1
+          fi

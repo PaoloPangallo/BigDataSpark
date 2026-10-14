@@ -36,3 +36,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Installed dependencies, IDE and generated Spark checksums
+node_modules/
+.idea/
+*.crc
+*.class
